@@ -46,6 +46,10 @@ Run tests:
 pytest --cov=src --cov-report=html
 ```
 
+```sh
+nose2 -v nose2_tests
+```
+
 View test coverage:
 
 ```sh open htmlcov/index.html  # macOS
