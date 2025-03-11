@@ -22,7 +22,7 @@ jobs:
           command: |
             uv venv
             . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage nose2 nose2[coverage] nose2[junitxml]
+            uv pip install pytest pytest-cov mypy ruff coverage nose2 nose2-plugin-junitxml coverage
 
       - run:
           name: Run Tests & Generate Coverage Report
@@ -34,7 +34,7 @@ jobs:
           name: Run Nose2 Tests & Generate Coverage Report
           command: |
             . .venv/bin/activate
-            nose2 --junit-xml --with-coverage --coverage-report xml --coverage-report html -s nose2_tests
+            nose2 --with-coverage --coverage-report xml --coverage-report html --plugin nose2.plugins.junitxml -s nose2_tests
 
       - run:
           name: Run linters
