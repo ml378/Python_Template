@@ -1,4 +1,5 @@
 version: 2.1
+
 executors:
   python-executor:
     docker:
@@ -45,29 +46,5 @@ jobs:
 workflows:
   version: 2
   test_pipeline:
-=======
-jobs:
-  test:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: uv pip install pytest mypy ruff coverage
-      - run:
-          name: Run tests
-          command: pytest --junitxml=test-results.xml
-      - run:
-          name: Run linters
-          command: ruff check .
-      - run:
-          name: Static analysis
-          command: mypy .
-      - store_test_results:
-          path: test-results.xml
-workflows:
-  version: 2
-  test-workflow:
     jobs:
       - test
