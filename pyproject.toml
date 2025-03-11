@@ -36,3 +36,21 @@ directory = "coverage_html_report"  # HTML report output directory
 
 [tool.coverage.xml]
 output = "coverage.xml"  # Generate XML report for CI/CD
+
+[tool.ruff]
+# Enable all available linting rules
+lint.select = ["ALL"]
+lint.ignore = [
+    "E501",   # Ignore line length
+    "D203",   # Conflicts with D211 
+    "D213",   # Conflicts with D212
+    "PLR0913", # Too many arguments in function, sometimes needed for clarity
+    "FBT001", # Not useful in many cases
+    "FBT002"  # Not useful in many cases
+]
+
+# Ruff Formatting Rules
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
