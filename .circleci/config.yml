@@ -36,6 +36,14 @@ jobs:
             . .venv/bin/activate
             nose2 --junit-xml --with-coverage --coverage-report xml --coverage-report html -s nose2_tests
 
+      - run:
+          name: Run linters
+          command: ruff check .
+          
+      - run:
+          name: Static analysis
+          command: mypy .
+
       - store_test_results:
           path: test-results
 
