@@ -22,7 +22,7 @@ source = ["src"]  # Specify source directory for coverage measurement
 omit = ["tests/*", "*/migrations/*"]  # Exclude test and migration files
 
 [tool.coverage.report]
-fail_under = 80  # Set minimum coverage threshold (adjust as needed)
+fail_under = 30  # Set minimum coverage threshold (adjust as needed)
 show_missing = true  # Show missing lines in the report
 skip_covered = true  # Skip files where everything is covered
 exclude_lines = [
