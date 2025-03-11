@@ -44,7 +44,9 @@ jobs:
           
       - run:
           name: Static analysis
-          command: mypy .
+          command: |
+            . .venv/bin/activate
+            python -m mypy .
 
       - store_test_results:
           path: test-results
