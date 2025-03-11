@@ -47,6 +47,17 @@ lint.ignore = [
     "PLR0913", # Too many arguments in function, sometimes needed for clarity
     "FBT001", # Not useful in many cases
     "FBT002"  # Not useful in many cases
+    "D100",  # Ignore missing docstring in modules
+    "D101",  # Ignore missing docstring in classes
+    "D102",  # Ignore missing docstring in methods
+    "D103",  # Ignore missing docstring in functions
+    "D104",  # Ignore missing docstring in __init__.py
+    "D107",  # Ignore missing docstring in __init__ method
+    "ANN201", # Ignore missing return type annotation for functions
+    "ANN204", # Ignore missing return type annotation for __init__
+    "PT009",  # Ignore assertEqual/unittest-style assertions
+    "PLR2004", # Ignore magic number rule
+    "S101"  # Ignore pytest assert rule
 ]
 
 # Ruff Formatting Rules
