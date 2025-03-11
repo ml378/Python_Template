@@ -22,7 +22,7 @@ jobs:
           command: |
             uv venv
             . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
+            uv pip install pytest pytest-cov mypy ruff coverage nose2 nose2[coverage]
 
       - run:
           name: Run Tests & Generate Coverage Report
