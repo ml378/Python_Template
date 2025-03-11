@@ -31,7 +31,7 @@
 
     Clone the repository:
     ```sh
-    git clone https://github.com/JeffereyChasing/Python_Template.git
+    git clone https://github.com/ml378/Python_Template.git
     cd Python_Template
     ```
     Install dependencies:
@@ -110,22 +110,7 @@
 
     **Links from Circleci Tests**
 
-    ****Pass examples:****
-
-    1. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/14/workflows/9815ba0b-0c20-44d8-9c1a-fecfeb31f857
-
-    2. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/11/workflows/8730b599-a41f-4038-88fe-3b2eb57e05ff
-
-    ****Fail examples:****
-
-    1. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/6/workflows/cddd8e60-0e4d-496a-bf30-72d43a05a5d5
-
-    2. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/8/workflows/b5407d3b-f39b-423b-a5f1-6ee09fdfbfd4
-
-    **Links from Circleci Test Coverage Report**
-
-    1.https://output.circle-artifacts.com/output/job/b9f869e6-aa89-4789-b353-271a6f64d992/artifacts/0/test-coverage/class_index.html
-
+    https://app.circleci.com/pipelines/circleci/PMKrmVKcMeLYLN4ZAWvPSF/MixxMSzUixT5Ap1GdSpFR8/17/workflows/50d909cf-6753-407d-b258-e848e0d91251/jobs/17
 
     # Test Coverage Report
 
