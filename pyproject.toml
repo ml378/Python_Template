@@ -1,0 +1,38 @@
+[project]
+name = "python-template"
+version = "0.1.0"
+description = "Python project template with linting, type checking, and testing."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "ruff"
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-report=html"
+testpaths = ["tests"]
+
+# Add coverage.py configuration
+[tool.coverage.run]
+branch = true  # Measure branch coverage
+source = ["src"]  # Specify source directory for coverage measurement
+omit = ["tests/*", "*/migrations/*"]  # Exclude test and migration files
+
+[tool.coverage.report]
+fail_under = 80  # Set minimum coverage threshold (adjust as needed)
+show_missing = true  # Show missing lines in the report
+skip_covered = true  # Skip files where everything is covered
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == '__main__':",
+    "def __repr__"
+]
+
+[tool.coverage.html]
+directory = "coverage_html_report"  # HTML report output directory
+
+[tool.coverage.xml]
+output = "coverage.xml"  # Generate XML report for CI/CD
