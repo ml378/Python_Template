@@ -38,7 +38,9 @@ jobs:
 
       - run:
           name: Run linters
-          command: ruff check .
+          command: |
+            . .venv/bin/activate
+            python -m ruff check .
           
       - run:
           name: Static analysis
