@@ -46,7 +46,7 @@ lint.ignore = [
     "D213",   # Conflicts with D212
     "PLR0913", # Too many arguments in function, sometimes needed for clarity
     "FBT001", # Not useful in many cases
-    "FBT002"  # Not useful in many cases
+    "FBT002",  # Not useful in many cases
     "D100",  # Ignore missing docstring in modules
     "D101",  # Ignore missing docstring in classes
     "D102",  # Ignore missing docstring in methods
