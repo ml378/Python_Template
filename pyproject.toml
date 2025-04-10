@@ -11,6 +11,21 @@ dependencies = [
     "ruff"
 ]
 
+[tool.mypy]
+strict = True  
+warn_return_any = True
+warn_unused_configs = True
+warn_unreachable = True
+disallow_untyped_defs = True
+disallow_any_generics = True
+disallow_untyped_calls = True
+disallow_incomplete_defs = True
+disallow_subclassing_any = True
+check_untyped_defs = True
+no_implicit_optional = True
+no_implicit_reexport = True
+disable_error_code = no-untyped-def, no-untyped-call, union-attr
+
 [tool.pytest.ini_options]
 addopts = "--cov=src --cov-report=html"
 testpaths = ["tests"]
