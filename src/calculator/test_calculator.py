@@ -1,6 +1,6 @@
 import pytest
 
-from src.calculator import Calculator
+from src.calculator.calculator import Calculator
 
 
 @pytest.fixture
@@ -15,3 +15,6 @@ def test_subtraction(calculator):
 
 def test_multiplication(calculator):
     assert calculator.multiply(3, 3) == 9
+
+def test_division(calculator):
+    assert calculatory.divide(9, 3) == 3
