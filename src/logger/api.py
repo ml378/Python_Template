@@ -1,7 +1,7 @@
 """Logger module for logging operations."""
 
 from __future__ import annotations
-from logger import Logger
+from src.logger.logger import Logger
 from typing import cast
 
 # Instantiate the logger
