@@ -1,6 +1,6 @@
 import pytest
 
-from notifier import Notifier
+from src.notifier.notifier import Notifier
 
 
 @pytest.fixture
