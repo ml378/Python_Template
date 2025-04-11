@@ -53,7 +53,7 @@ jobs:
 
       - store_artifacts:
           path: htmlcov
-          destination: test-coverage  # makes the report browsable in CircleCI UI
+          destination: test-coverage
 
 workflows:
   version: 2
