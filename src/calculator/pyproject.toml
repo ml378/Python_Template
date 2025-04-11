@@ -15,7 +15,3 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 dependencies = []
-
-[project.urls]
-Homepage = "https://github.com/yourusername/calculator"
-Issues = "https://github.com/yourusername/calculator/issues"
