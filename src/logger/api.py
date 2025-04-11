@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from logger import Logger
+from typing import cast
 
 # Instantiate the logger
 _logger = Logger()
