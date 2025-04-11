@@ -1,7 +1,7 @@
 """Logger module for logging operations."""
 
 from __future__ import annotations
-from .logger import Logger
+from logger import Logger
 
 # Instantiate the logger
 _logger = Logger()
@@ -12,7 +12,7 @@ def log(operation: str, result: float):
 
 def get_logs() -> list[str]:
     """Retrieve all logged operations."""
-    return _logger.get_logs()
+    return cast(list[str], _logger.get_logs())
 
 # Define the public API of this module
 __all__ = ["log", "get_logs"]
