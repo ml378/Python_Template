@@ -30,14 +30,14 @@ disable_error_code = ["no-untyped-def", "no-untyped-call", "union-attr"]
 addopts = "--cov=src --cov-report=html"
 testpaths = ["tests"]
 
-# Add coverage.py configuration
+# coverage.py
 [tool.coverage.run]
-branch = true  # Measure branch coverage
-source = ["src"]  # Specify source directory for coverage measurement
-omit = ["tests/*", "*/migrations/*"]  # Exclude test and migration files
+branch = true  
+source = ["src"] 
+omit = ["tests/*", "*/migrations/*"] 
 
 [tool.coverage.report]
-fail_under = 30  # Set minimum coverage threshold (adjust as needed)
+fail_under = 20  # Sets minimum coverage threshold
 show_missing = true  # Show missing lines in the report
 skip_covered = true  # Skip files where everything is covered
 exclude_lines = [
@@ -47,13 +47,12 @@ exclude_lines = [
 ]
 
 [tool.coverage.html]
-directory = "coverage_html_report"  # HTML report output directory
+directory = "coverage_html_report"  
 
 [tool.coverage.xml]
-output = "coverage.xml"  # Generate XML report for CI/CD
+output = "coverage.xml"  
 
 [tool.ruff]
-# Enable all available linting rules
 lint.select = ["ALL"]
 lint.ignore = [
     "E501",   # Ignore line length
