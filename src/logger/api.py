@@ -1,5 +1,6 @@
 """Logger module for logging operations."""
 
+from __future__ import annotations
 from .logger import Logger
 
 # Instantiate the logger
