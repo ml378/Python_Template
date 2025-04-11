@@ -1,6 +1,6 @@
 """Simple Calculator module for basic aarithmetic."""
 
-from calculator import Calculator
+from .calculator import Calculator
 
 # Instantiate the calculator
 _calculator = Calculator()
