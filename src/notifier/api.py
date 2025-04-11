@@ -1,6 +1,6 @@
 """Notifier module for exceeding the treshold limit."""
 
-from .notifier import Notifier
+from src.notifier.notifier import Notifier
 
 # Instantiate the notifier with a default threshold
 _notifier = Notifier(threshold=10.0)
