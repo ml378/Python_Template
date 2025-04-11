@@ -1,4 +1,5 @@
 version: 2.1
+
 executors:
   python-executor:
     docker:
@@ -21,7 +22,7 @@ jobs:
           command: |
             uv venv
             . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
+            uv pip install pytest pytest-cov mypy ruff coverage nose2
 
       - run:
           name: Run Tests & Generate Coverage Report
@@ -30,44 +31,32 @@ jobs:
             pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
-          name: Run Nose2 Tests & Generate Coverage Report
+          name: Run Nose2 Tests
           command: |
             . .venv/bin/activate
-            nose2 --junit-xml --with-coverage --coverage-report xml --coverage-report html -s nose2_tests
+            nose2 -s nose2_tests
+
+      - run:
+          name: Run linters
+          command: |
+            . .venv/bin/activate
+            python -m ruff check . --fix
+          
+      - run:
+          name: Static analysis
+          command: |
+            . .venv/bin/activate
+            python -m mypy .
 
       - store_test_results:
           path: test-results
 
       - store_artifacts:
           path: htmlcov
-          destination: test-coverage  # makes the report browsable in CircleCI UI
+          destination: test-coverage
 
 workflows:
   version: 2
   test_pipeline:
-=======
-jobs:
-  test:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: uv pip install pytest mypy ruff coverage
-      - run:
-          name: Run tests
-          command: pytest --junitxml=test-results.xml
-      - run:
-          name: Run linters
-          command: ruff check .
-      - run:
-          name: Static analysis
-          command: mypy .
-      - store_test_results:
-          path: test-results.xml
-workflows:
-  version: 2
-  test-workflow:
     jobs:
       - test

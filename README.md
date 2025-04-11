@@ -1,138 +1,103 @@
-    # Python Project with CI/CD Pipeline (CircleCI)
+# Team 14 Template Repository
+# Python Project with CI/CD Pipeline (CircleCI)
 
-    ***Overview***
+## Description
 
-    This repository contains a Python project with automated unit tests, integration tests, and test coverage reports powered by CircleCI.
+This repository contains a Python project with automated, comprehensive test coverage, unit tests, integration tests, and test coverage reports powered by CircleCI.
 
-    ***Features***
+## Prerequisites
 
-    1. Automated unit tests with pytest
+1. Python 3.8 or higher
 
-    2. Test coverage report generated and browsable from CircleCI UI
+2. UV for Python dependency management
 
-    3. CI/CD pipeline using CircleCI
+## Project Setup & Installation 
 
-    4. Pre-commit checks with mypy and ruff
+Clone the repository:
+```bash
+git clone https://github.com/ml378/Python_Template.git
+cd Python_Template
+```
+Install dependencies:
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install uv
+uv pip install -r requirements.txt
+```
+Run tests:
+```bash
+pytest --cov=src --cov-report=html
+```
 
-    5. Modern dependency management using uv
+```bash
+nose2 -v nose2_tests
+```
 
-    6. Static analysis and formatting checks
+View test coverage:
+For MacOS:
+```bash 
+open htmlcov/index.html  
+```
 
-    7. GitHub Actions for continuous integratio
+For Windows:
+```bash 
+start htmlcov\index.html
+```
 
+## The CI/CD Pipeline (CircleCI)
+This project uses CircleCI, which 
+- Runs unit tests (via pytest)
+- Generates coverage reports (pytest-cov)
+- Does Linting (via ruff)
+Test results are available in CircleCI; reports are stored as Artifacts. 
 
-    ***Prerequisites***
+## Contributing & Making a Pull Request
+1. Create a new branch:
+```bash
+git checkout -b branch-name
+```
 
-    1. Python 3.8 or higher
+3. Make your changes and commit them:
+```bash
+git add .
+git commit -m "Commit message"
+```
 
-    2. UV for Python dependency management
+4. Push your changes and create a pull request:
+```bash
+git push origin pull-request-name
+```
 
-    ***Setup & Installation***
+## Tech Stack
 
-    Clone the repository:
-    ```sh
-    git clone https://github.com/JeffereyChasing/Python_Template.git
-    cd Python_Template
-    ```
-    Install dependencies:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate
-    pip install uv
-    uv pip install -r requirements.txt
-    ```
-    Run tests:
-    ```sh
-    pytest --cov=src --cov-report=html
-    ```
+Python 3.12
 
-    ```sh
-    nose2 -v nose2_tests
-    ```
+Pytest
 
-    View test coverage:
+CircleCI
 
-    ```sh open htmlcov/index.html  # macOS
-    xdg-open htmlcov/index.html  # Linux
-    ```
+Coverage.py
 
-    ***CI/CD Pipeline (CircleCI)***
+Ruff (Linting)
 
-    ****How it Works****
+Mypy (Type Checking)
 
-    Push to GitHub → CircleCI triggers the pipeline➡️ Runs:
+UV (Dependency Management)
 
-    1. Unit tests (pytest)
+## License
 
-    2. Coverage report (pytest-cov)
+This project is licensed under the MIT License.
 
-    3. Linting (ruff)
+## Links from Circleci Tests
 
-    Test results are visible in the CircleCI "Tests" tab➡️ Coverage reports are stored as "Artifacts", browsable in CircleCI UI.
+https://app.circleci.com/pipelines/circleci/PMKrmVKcMeLYLN4ZAWvPSF/MixxMSzUixT5Ap1GdSpFR8/17/workflows/50d909cf-6753-407d-b258-e848e0d91251/jobs/17
 
-    ***View Test Coverage in CircleCI***
+# Test Coverage Report
 
-    1️⃣ Go to CircleCI Dashboard2️⃣ Open the latest Job Run3️⃣ Navigate to Artifacts4️⃣ Click on test-coverage/index.html to browse the report
+## Running Tests with Coverage
+To measure test coverage and generate a browsable report, run:
 
-
-
-    ***Pull Requests***
-
-    1. Use the pull request template from .github/pull_request_template/
-
-    2. Provide a clear summary of the PR.
-
-    3. Explain the motivation behind the changes.
-
-    4. Describe any testing performed to ensure correctness.
-
-
-
-    ***Tech Stack***
-
-    Python 3.12
-
-    Pytest
-
-    CircleCI
-
-    Coverage.py
-
-    Ruff (Linting)
-
-    Mypy (Type Checking)
-
-    UV (Dependency Management)
-
-    ***License***
-
-    This project is licensed under the MIT License.
-
-    **Links from Circleci Tests**
-
-    ****Pass examples:****
-
-    1. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/14/workflows/9815ba0b-0c20-44d8-9c1a-fecfeb31f857
-
-    2. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/11/workflows/8730b599-a41f-4038-88fe-3b2eb57e05ff
-
-    ****Fail examples:****
-
-    1. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/6/workflows/cddd8e60-0e4d-496a-bf30-72d43a05a5d5
-
-    2. https://app.circleci.com/pipelines/circleci/67ZqchNqYFV96fgwW7SXdk/9C4m9dcUHJDbrPi91BUCAo/8/workflows/b5407d3b-f39b-423b-a5f1-6ee09fdfbfd4
-
-    **Links from Circleci Test Coverage Report**
-
-    1.https://output.circle-artifacts.com/output/job/b9f869e6-aa89-4789-b353-271a6f64d992/artifacts/0/test-coverage/class_index.html
-
-
-    # Test Coverage Report
-
-    ## Running Tests with Coverage
-    To measure test coverage and generate a browsable report, run:
-
-    ```sh
-    pytest --cov=src --cov-report=html
-    ```
-
+```bash
+pytest --cov=src --cov-report=html
+```

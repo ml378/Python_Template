@@ -1,6 +1,6 @@
 import pytest
 
-from src.logger import Logger
+from src.logger.logger import Logger
 
 
 @pytest.fixture
