@@ -92,7 +92,7 @@ class Trello:
         response = requests.get(url, params=params)
         response.raise_for_status()
         return [
-            TrelloCard(
+            IssueCard(
                 card_id=item["id"],
                 name=item["name"],
                 desc=item["desc"]
