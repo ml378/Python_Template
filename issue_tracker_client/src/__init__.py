@@ -3,7 +3,7 @@ from typing import List
 
 # ---------- GitHub API Classes ----------
 
-class GitHubIssue:
+class Task:
     def __init__(self, issue_id, title, body, url, state):
         self.id = issue_id
         self.title = title
@@ -19,12 +19,12 @@ class GitHubAPI:
             "Accept": "application/vnd.github+json"
         }
 
-    def fetch_issues(self, owner: str, repo: str) -> List[GitHubIssue]:
-        url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    def fetch_issues(self, owner: str, repo: str) -> List[Task]:
+        url = f"https://api.github.com/repos/ml378/Python_Template/issues"
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
         return [
-            GitHubIssue(
+            Task(
                 issue_id=item["number"],
                 title=item["title"],
                 body=item.get("body", ""),
@@ -35,7 +35,7 @@ class GitHubAPI:
         ]
 
     def close_issue(self, owner: str, repo: str, issue_id: int) -> bool:
-        url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}"
+        url = f"https://api.github.com/repos/ml378/Python_Template/issues/{issue_id}"
         data = {"state": "closed"}
         response = requests.patch(url, headers=self.headers, json=data)
         return response.status_code == 200
@@ -46,15 +46,15 @@ class GitHubAPI:
         return response.status_code == 201
 
 
-# ---------- Trello API Classes ----------
+# ---------- Trello Connection Classes ----------
 
-class TrelloCard:
+class IssueCard:
     def __init__(self, card_id, name, desc):
         self.id = card_id
         self.name = name
         self.desc = desc
 
-class TrelloAPI:
+class Trello:
     def __init__(self, key: str, token: str):
         self.key = key
         self.token = token
