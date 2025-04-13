@@ -1,6 +1,6 @@
 # For running the issue tracker
 
-from issue_tracker import GitHubAPI, Trello, IssueCard
+from issue_tracker_client.src.issue_tracker import GitHubAPI, Trello, IssueCard
 
 GITHUB_TOKEN = "your_token"
 TRELLO_KEY = "your_key"
