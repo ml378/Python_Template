@@ -28,7 +28,7 @@ jobs:
           name: Run Tests & Generate Coverage Report
           command: |
             . .venv/bin/activate
-            pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html
+            pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html api/tests
 
       - run:
           name: Run Nose2 Tests

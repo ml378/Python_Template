@@ -1,6 +1,7 @@
-from typing import Any, Dict, Iterator, List, Optional, Protocol
+from typing import Any, Dict, Iterator, List, Optional, Protocol, runtime_checkable
 
 
+@runtime_checkable
 class Comment(Protocol):
     """A comment on an issue."""
 
@@ -24,7 +25,7 @@ class Comment(Protocol):
         """Return the creation date of the comment."""
         raise NotImplementedError
 
-
+@runtime_checkable
 class Issue(Protocol):
     """An Issue in the issue tracker."""
 
@@ -82,7 +83,7 @@ class Issue(Protocol):
         """Return an iterator of comments for this issue."""
         raise NotImplementedError
 
-
+@runtime_checkable
 class IssueTrackerClient(Protocol):
     """An Issue Tracker Client used to manage issues."""
 
