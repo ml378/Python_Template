@@ -1,121 +1,116 @@
-import requests
-from typing import List
-
-# ---------- GitHub API Classes ----------
-
-class GitHubIssue:
-    def __init__(self, issue_id, title, body, url, state):
-        self.id = issue_id
-        self.title = title
-        self.body = body
-        self.url = url
-        self.state = state
-
-class GitHubAPI:
-    def __init__(self, token: str):
-        self.token = token
-        self.headers = {
-            "Authorization": f"token {self.token}",
-            "Accept": "application/vnd.github+json"
-        }
-
-    def fetch_issues(self, owner: str, repo: str) -> List[GitHubIssue]:
-        url = f"https://api.github.com/repos/{owner}/{repo}/issues"
-        response = requests.get(url, headers=self.headers)
-        response.raise_for_status()
-        return [
-            GitHubIssue(
-                issue_id=item["number"],
-                title=item["title"],
-                body=item.get("body", ""),
-                url=item["html_url"],
-                state=item["state"]
-            )
-            for item in response.json()
-        ]
-
-    def close_issue(self, owner: str, repo: str, issue_id: int) -> bool:
-        url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}"
-        data = {"state": "closed"}
-        response = requests.patch(url, headers=self.headers, json=data)
-        return response.status_code == 200
-
-    def comment_on_issue(self, owner: str, repo: str, issue_id: int, comment: str) -> bool:
-        url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}/comments"
-        response = requests.post(url, headers=self.headers, json={"body": comment})
-        return response.status_code == 201
+from typing import Any, Dict, Iterator, List, Optional, Protocol
 
 
-# ---------- Trello API Classes ----------
+class Comment(Protocol):
+    """A comment on an issue."""
 
-class TrelloCard:
-    def __init__(self, card_id, name, desc):
-        self.id = card_id
-        self.name = name
-        self.desc = desc
+    @property
+    def id(self) -> str:
+        """Return the id of the comment."""
+        raise NotImplementedError
 
-class TrelloAPI:
-    def __init__(self, key: str, token: str):
-        self.key = key
-        self.token = token
+    @property
+    def author(self) -> str:
+        """Return the author of the comment."""
+        raise NotImplementedError
 
-    def create_card(self, list_id: str, card: TrelloCard) -> bool:
-        url = "https://api.trello.com/1/cards"
-        params = {
-            "key": self.key,
-            "token": self.token,
-            "idList": list_id,
-            "name": card.name,
-            "desc": card.desc
-        }
-        response = requests.post(url, params=params)
-        return response.status_code == 200
+    @property
+    def content(self) -> str:
+        """Return the content of the comment."""
+        raise NotImplementedError
 
-    def move_card_to_list(self, card_id: str, list_id: str) -> bool:
-        url = f"https://api.trello.com/1/cards/{card_id}"
-        params = {
-            "key": self.key,
-            "token": self.token,
-            "idList": list_id
-        }
-        response = requests.put(url, params=params)
-        return response.status_code == 200
-
-    def get_cards_from_list(self, list_id: str) -> List[TrelloCard]:
-        url = f"https://api.trello.com/1/lists/{list_id}/cards"
-        params = {
-            "key": self.key,
-            "token": self.token
-        }
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        return [
-            TrelloCard(
-                card_id=item["id"],
-                name=item["name"],
-                desc=item["desc"]
-            )
-            for item in response.json()
-        ]
+    @property
+    def created_at(self) -> str:
+        """Return the creation date of the comment."""
+        raise NotImplementedError
 
 
-# ---------- Sync Manager ----------
+class Issue(Protocol):
+    """An Issue in the issue tracker."""
 
-class IssueSyncManager:
-    def __init__(self, github_api: GitHubAPI, trello_api: TrelloAPI):
-        self.github_api = github_api
-        self.trello_api = trello_api
+    @property
+    def id(self) -> str:
+        """Return the id of the issue."""
+        raise NotImplementedError
 
-    def sync_issues_to_trello(self, owner, repo, list_id):
-        issues = self.github_api.fetch_issues(owner, repo)
-        for issue in issues:
-            card = TrelloCard(
-                card_id="",  # New card will get ID from Trello
-                name=issue.title,
-                desc=f"{issue.body}\n\nGitHub URL: {issue.url}"
-            )
-            self.trello_api.create_card(list_id, card)
+    @property
+    def title(self) -> str:
+        """Return the title of the issue."""
+        raise NotImplementedError
 
-    def close_issue_from_card(self, card_id, owner, repo, issue_number):
-        self.github_api.close_issue(owner, repo, issue_number)
-        print(f"Issue #{issue_number} closed based on Trello card {card_id}")
+    @property
+    def description(self) -> str:
+        """Return the description of the issue."""
+        raise NotImplementedError
+
+    @property
+    def status(self) -> str:
+        """Return the status of the issue (open, closed, etc.)."""
+        raise NotImplementedError
+
+    @property
+    def creator(self) -> str:
+        """Return the creator of the issue."""
+        raise NotImplementedError
+
+    @property
+    def assignee(self) -> Optional[str]:
+        """Return the assignee of the issue, if any."""
+        raise NotImplementedError
+
+    @property
+    def created_at(self) -> str:
+        """Return the creation date of the issue."""
+        raise NotImplementedError
+
+    @property
+    def updated_at(self) -> str:
+        """Return the last update date of the issue."""
+        raise NotImplementedError
+
+    @property
+    def labels(self) -> List[str]:
+        """Return the labels associated with the issue."""
+        raise NotImplementedError
+
+    @property
+    def priority(self) -> Optional[str]:
+        """Return the priority of the issue, if set."""
+        raise NotImplementedError
+
+    def get_comments(self) -> Iterator[Comment]:
+        """Return an iterator of comments for this issue."""
+        raise NotImplementedError
+
+
+class IssueTrackerClient(Protocol):
+    """An Issue Tracker Client used to manage issues."""
+
+    def get_issues(self, filters: Optional[Dict[str, Any]] = None) -> Iterator[Issue]:
+        """Return an iterator of issues, optionally filtered."""
+        raise NotImplementedError
+
+    def get_issue(self, issue_id: str) -> Issue:
+        """Return a specific issue by ID."""
+        raise NotImplementedError
+
+    def create_issue(self, title: str, description: str, **kwargs) -> Issue:
+        """Create a new issue and return it."""
+        raise NotImplementedError
+
+    def update_issue(self, issue_id: str, **kwargs) -> Issue:
+        """Update an existing issue and return the updated version."""
+        raise NotImplementedError
+
+    def add_comment(self, issue_id: str, content: str) -> Comment:
+        """Add a comment to an issue and return the created comment."""
+        raise NotImplementedError
+
+    def search_issues(self, query: str) -> Iterator[Issue]:
+        """Search for issues matching the query string."""
+        raise NotImplementedError
+
+
+def get_issue_tracker_client() -> IssueTrackerClient:
+    """Return an instance of an Issue Tracker Client."""
+    raise NotImplementedError
