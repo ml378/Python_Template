@@ -2,7 +2,7 @@
 
     ***Overview***
 
-    This repository contains a Python project with automated unit tests, integration tests, and test coverage reports powered by CircleCI.
+    This repository contains a Python project with automated unit tests, integration tests, and test coverage reports powered by CircleCI.The minimum viable version of this project would include a functional issue tracker client, where user could raise an issue, others will be able to comment on it, and the issues could be managed. 
 
     ***Features***
 
