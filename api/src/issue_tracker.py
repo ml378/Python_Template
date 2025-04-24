@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional
-import uuid
 
 from api.src import Comment, Issue, IssueTrackerClient
 
@@ -126,7 +126,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
     def get_issues(self, filters: Optional[Dict[str, Any]] = None) -> Iterator[Issue]:
         """Return an iterator of issues, optionally filtered."""
         issues = self._issues.values()
-        
+    
         if filters:
             filtered_issues = []
             for issue in issues:
