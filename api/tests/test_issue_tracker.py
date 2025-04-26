@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import pytest
 import sys,os
 from api.src.issue_tracker import MemoryIssueTrackerClient, MemoryIssue, MemoryComment
-from __future__ import annotations
 
 @pytest.fixture
 def client():

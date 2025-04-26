@@ -1,7 +1,8 @@
-import uuid
+from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, Iterator, List, Optional
-from __future__ import annotations
+import uuid
+
 
 from api.src import Comment, Issue, IssueTrackerClient
 
