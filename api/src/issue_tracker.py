@@ -1,6 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Iterator, List, Optional
+from __future__ import annotations
 
 from api.src import Comment, Issue, IssueTrackerClient
 
@@ -34,14 +35,14 @@ class MemoryComment(Comment):
 class MemoryIssue(Issue):
     """An in-memory implementation of an Issue."""
     
-    def __init__(self, title: str, description: str, creator: str, **kwargs):
+    def __init__(self, title: str, description: str, creator: str, **kwargs: Any):
         self._id = str(uuid.uuid4())
         self._title = title
         self._description = description
         self._status = kwargs.get("status", "open")
         self._creator = creator
         self._assignee = kwargs.get("assignee")
-        self._created_at = datetime.now().isoformat()
+        self._created_at = datetime.now(tz=datetime.timezone.utc).isoformat()
         self._updated_at = self._created_at
         self._labels = kwargs.get("labels", [])
         self._priority = kwargs.get("priority")
@@ -149,22 +150,28 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         
         return iter(issues)
     
+    def get_issue_dict(self) -> Dict[str, Issue]:
+        """Return all issues as a dictionary."""
+        return self._issues
+    
     def get_issue(self, issue_id: str) -> Issue:
         """Return a specific issue by ID."""
         if issue_id not in self._issues:
-            raise ValueError(f"Issue with ID {issue_id} not found")
+            error_message = f"Issue with ID {issue_id} not found"
+            raise ValueError(error_message)
         return self._issues[issue_id]
     
-    def create_issue(self, title: str, description: str, **kwargs) -> Issue:
+    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:
         """Create a new issue and return it."""
         issue = MemoryIssue(title, description, self._current_user, **kwargs)
         self._issues[issue.id] = issue
         return issue
     
-    def update_issue(self, issue_id: str, **kwargs) -> Issue:
+    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
         """Update an existing issue and return the updated version."""
         if issue_id not in self._issues:
-            raise ValueError(f"Issue with ID {issue_id} not found")
+            error_message = f"Issue with ID {issue_id} not found"
+            raise ValueError(error_message)
         
         issue = self._issues[issue_id]
         issue.update(**kwargs)
@@ -173,7 +180,8 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
     def add_comment(self, issue_id: str, content: str) -> Comment:
         """Add a comment to an issue and return the created comment."""
         if issue_id not in self._issues:
-            raise ValueError(f"Issue with ID {issue_id} not found")
+            error_message = f"Issue with ID {issue_id} not found"
+            raise ValueError(error_message)
         
         issue = self._issues[issue_id]
         comment = MemoryComment(self._current_user, content)
@@ -184,11 +192,10 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         """Search for issues matching the query string."""
         # Simple case-insensitive search in title and description
         query = query.lower()
-        matching_issues = []
-        
-        for issue in self._issues.values():
-            if (query in issue.title.lower() or 
-                query in issue.description.lower()):
-                matching_issues.append(issue)
-        
+
+        matching_issues = [
+            issue for issue in self._issues.values()
+            if query in issue.title.lower() or query in issue.description.lower()
+        ]
+
         return iter(matching_issues)

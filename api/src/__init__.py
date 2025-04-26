@@ -1,4 +1,5 @@
 from typing import Any, Dict, Iterator, List, Optional, Protocol, runtime_checkable
+from __future__ import annotations
 
 
 @runtime_checkable
@@ -95,11 +96,11 @@ class IssueTrackerClient(Protocol):
         """Return a specific issue by ID."""
         raise NotImplementedError
 
-    def create_issue(self, title: str, description: str, **kwargs) -> Issue:
+    def create_issue(self, title: str, description: str, **kwargs: any) -> Issue:
         """Create a new issue and return it."""
         raise NotImplementedError
 
-    def update_issue(self, issue_id: str, **kwargs) -> Issue:
+    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
         """Update an existing issue and return the updated version."""
         raise NotImplementedError
 

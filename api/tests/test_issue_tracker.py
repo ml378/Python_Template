@@ -1,6 +1,7 @@
 import pytest
 import sys,os
 from api.src.issue_tracker import MemoryIssueTrackerClient, MemoryIssue, MemoryComment
+from __future__ import annotations
 
 @pytest.fixture
 def client():
@@ -41,8 +42,8 @@ def test_create_issue(client):
     assert issue.labels == ["test"]
     assert issue.priority == "medium"
     assert issue.assignee == "assignee_user"
-    assert issue.id in client._issues
-    assert client._issues[issue.id] == issue
+    assert issue.id in client.get_issue_dict()
+    assert client.get_issue_dict()[issue.id] == issue
 
 def test_get_issue(client_with_issues):
     """Test retrieving a specific issue."""
