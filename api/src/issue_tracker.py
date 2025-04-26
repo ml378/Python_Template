@@ -14,7 +14,7 @@ class MemoryComment(Comment):
         self._id = str(uuid.uuid4())
         self._author = author
         self._content = content
-        self._created_at = datetime.now().isoformat()
+        self._created_at = datetime.now(tz=timezone.utc).isoformat()
     
     @property
     def id(self) -> str:
@@ -43,7 +43,7 @@ class MemoryIssue(Issue):
         self._status = kwargs.get("status", "open")
         self._creator = creator
         self._assignee = kwargs.get("assignee")
-        self._created_at = datetime.now(tz=datetime.timezone.utc).isoformat()
+        self._created_at = datetime.now(tz=timezone.utc).isoformat()
         self._updated_at = self._created_at
         self._labels = kwargs.get("labels", [])
         self._priority = kwargs.get("priority")
@@ -94,7 +94,7 @@ class MemoryIssue(Issue):
     
     def add_comment(self, comment: MemoryComment) -> None:
         self._comments.append(comment)
-        self._updated_at = datetime.now().isoformat()
+        self._updated_at = datetime.now(tz=timezone.utc).isoformat()
     
     def update(self, **kwargs) -> None:
         """Update issue attributes."""
@@ -111,8 +111,7 @@ class MemoryIssue(Issue):
         if "priority" in kwargs:
             self._priority = kwargs["priority"]
         
-        self._updated_at = datetime.now().isoformat()
-
+        self._updated_at = datetime.now(tz=timezone.utc).isoformat()
 
 class MemoryIssueTrackerClient(IssueTrackerClient):
     """An in-memory implementation of an Issue Tracker Client."""
