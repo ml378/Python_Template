@@ -36,7 +36,7 @@ class MemoryComment(Comment):
 class MemoryIssue(Issue):
     """An in-memory implementation of an Issue."""
     
-    def __init__(self, title: str, description: str, creator: str, **kwargs: Any):
+    def __init__(self, title: str, description: str, creator: str, **kwargs: any):
         self._id = str(uuid.uuid4())
         self._title = title
         self._description = description
@@ -124,7 +124,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         """Set the current user for operations."""
         self._current_user = username
     
-    def get_issues(self, filters: Optional[Dict[str, Any]] = None) -> Iterator[Issue]:
+    def get_issues(self, filters: dict[str, any] | None = None) -> Iterator[Issue]:
         """Return an iterator of issues, optionally filtered."""
         issues = self._issues.values()
     
@@ -150,7 +150,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         
         return iter(issues)
     
-    def get_issue_dict(self) -> Dict[str, Issue]:
+    def get_issue_dict(self) -> dict[str, Issue]:
         """Return all issues as a dictionary."""
         return self._issues
     
@@ -161,13 +161,13 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
             raise ValueError(error_message)
         return self._issues[issue_id]
     
-    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:
+    def create_issue(self, title: str, description: str, **kwargs: any) -> Issue:
         """Create a new issue and return it."""
         issue = MemoryIssue(title, description, self._current_user, **kwargs)
         self._issues[issue.id] = issue
         return issue
     
-    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
+    def update_issue(self, issue_id: str, **kwargs: any) -> Issue:
         """Update an existing issue and return the updated version."""
         if issue_id not in self._issues:
             error_message = f"Issue with ID {issue_id} not found"
@@ -199,3 +199,6 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         ]
 
         return iter(matching_issues)
+    
+    def get_current_user(self) -> str:
+        return self._current_user

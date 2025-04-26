@@ -55,7 +55,7 @@ class Issue(Protocol):
         raise NotImplementedError
 
     @property
-    def assignee(self) -> Optional[str]:
+    def assignee(self) -> str | None:
         """Return the assignee of the issue, if any."""
         raise NotImplementedError
 
@@ -70,12 +70,12 @@ class Issue(Protocol):
         raise NotImplementedError
 
     @property
-    def labels(self) -> List[str]:
+    def labels(self) -> list[str]:
         """Return the labels associated with the issue."""
         raise NotImplementedError
 
     @property
-    def priority(self) -> Optional[str]:
+    def priority(self) -> str | None:
         """Return the priority of the issue, if set."""
         raise NotImplementedError
 
@@ -87,7 +87,7 @@ class Issue(Protocol):
 class IssueTrackerClient(Protocol):
     """An Issue Tracker Client used to manage issues."""
 
-    def get_issues(self, filters: Optional[Dict[str, Any]] = None) -> Iterator[Issue]:
+    def get_issues(self, filters: dict[str, Any] | None) -> Iterator[Issue]:
         """Return an iterator of issues, optionally filtered."""
         raise NotImplementedError
 
@@ -99,7 +99,7 @@ class IssueTrackerClient(Protocol):
         """Create a new issue and return it."""
         raise NotImplementedError
 
-    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
+    def update_issue(self, issue_id: str, **kwargs: any) -> Issue:
         """Update an existing issue and return the updated version."""
         raise NotImplementedError
 

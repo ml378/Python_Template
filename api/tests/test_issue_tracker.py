@@ -22,8 +22,8 @@ def client_with_issues(client):
 
 def test_init(client):
     """Test client initialization."""
-    assert isinstance(client._issues, dict)
-    assert len(client._issues) == 0
+    assert isinstance(client.get_issue_dict(), dict)
+    assert len(client.get_issue_dict()) == 0
     assert client._current_user == "default_user"
 
 def test_set_current_user(client):
@@ -49,7 +49,7 @@ def test_create_issue(client):
 def test_get_issue(client_with_issues):
     """Test retrieving a specific issue."""
     # Get the ID of the first created issue
-    issue_id = list(client_with_issues._issues.keys())[0]
+    issue_id = list(client_with_issues.get_issue_dict().keys())[0]
     issue = client_with_issues.get_issue(issue_id)
     assert issue.id == issue_id
     assert issue.title == "Bug 1"
@@ -101,7 +101,7 @@ def test_get_issues_with_filters(client_with_issues):
 
 def test_update_issue(client_with_issues):
     """Test updating an existing issue."""
-    issue_id = list(client_with_issues._issues.keys())[0] # Get ID of "Bug 1"
+    issue_id = list(client_with_issues.get_issue_dict().keys())[0] # Get ID of "Bug 1"
     original_issue = client_with_issues.get_issue(issue_id)
     original_updated_at = original_issue.updated_at
 
@@ -134,7 +134,7 @@ def test_update_issue_not_found(client):
 
 def test_add_comment(client_with_issues):
     """Test adding a comment to an issue."""
-    issue_id = list(client_with_issues._issues.keys())[0] # Get ID of "Bug 1"
+    issue_id = list(client_with_issues.get_issue_dict().keys())[0] # Get ID of "Bug 1"
     client_with_issues.set_current_user("commenter_user")
     comment_content = "This is a test comment."
 
@@ -159,8 +159,8 @@ def test_add_comment_issue_not_found(client):
         client.add_comment("non_existent_id", "Some comment")
 
 def test_get_comments(client_with_issues):
-    """Test retrieving comments from an issue."""
-    issue_id = list(client_with_issues._issues.keys())[0] # Get ID of "Bug 1"
+    """Test retrieving comments from an issue.""" 
+    issue_id = next(iter(client_with_issues.get_issue_dict().keys())) # Get ID of "Bug 1"
     client_with_issues.set_current_user("user_a")
     client_with_issues.add_comment(issue_id, "Comment 1")
     client_with_issues.set_current_user("user_b")
@@ -186,8 +186,7 @@ def test_search_issues(client_with_issues):
     assert len(results_feature) == 1
     assert results_feature[0].title == "Feature Request"
 
-    # Search in description (case-insensitive)
-    results_description = list(client_with_issues.search_issues("another bug"))
+    results_description = list(client_with_issues.search_issues("another bug")) # Search in description (case-insensitive)
     assert len(results_description) == 1
     assert results_description[0].title == "Bug 2"
 
