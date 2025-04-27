@@ -47,7 +47,7 @@ class MemoryIssue(Issue):
         self._updated_at = self._created_at
         self._labels = kwargs.get("labels", [])
         self._priority = kwargs.get("priority")
-        self._comments: List[MemoryComment] = []
+        self._comments: list[MemoryComment] = []
     
     @property
     def id(self) -> str:
@@ -70,7 +70,7 @@ class MemoryIssue(Issue):
         return self._creator
     
     @property
-    def assignee(self) -> Optional[str]:
+    def assignee(self) -> str | None:
         return self._assignee
     
     @property
@@ -82,11 +82,11 @@ class MemoryIssue(Issue):
         return self._updated_at
     
     @property
-    def labels(self) -> List[str]:
+    def labels(self) -> list[str]:
         return self._labels
     
     @property
-    def priority(self) -> Optional[str]:
+    def priority(self) -> str | None:
         return self._priority
     
     def get_comments(self) -> Iterator[Comment]:
@@ -96,7 +96,7 @@ class MemoryIssue(Issue):
         self._comments.append(comment)
         self._updated_at = datetime.now(tz=timezone.utc).isoformat()
     
-    def update(self, **kwargs) -> None:
+    def update(self, **kwargs: any) -> None:
         """Update issue attributes."""
         if "title" in kwargs:
             self._title = kwargs["title"]
@@ -117,7 +117,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
     """An in-memory implementation of an Issue Tracker Client."""
     
     def __init__(self):
-        self._issues: Dict[str, MemoryIssue] = {}
+        self._issues: dict[str, MemoryIssue] = {}
         self._current_user = "default_user"  # In a real system, this would come from auth
     
     def set_current_user(self, username: str) -> None:

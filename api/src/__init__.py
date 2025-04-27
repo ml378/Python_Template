@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, Iterator, List, Optional, Protocol, runtime_checkable
+from typing import Any, Iterator, Protocol, runtime_checkable
 
 @runtime_checkable
 class Comment(Protocol):

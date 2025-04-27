@@ -24,12 +24,12 @@ def test_init(client):
     """Test client initialization."""
     assert isinstance(client.get_issue_dict(), dict)
     assert len(client.get_issue_dict()) == 0
-    assert client._current_user == "default_user"
+    assert client.get_current_user() == "default_user"
 
 def test_set_current_user(client):
     """Test setting the current user."""
     client.set_current_user("test_user")
-    assert client._current_user == "test_user"
+    assert client.get_current_user() == "test_user"
 
 def test_create_issue(client):
     """Test creating a new issue."""
@@ -49,7 +49,7 @@ def test_create_issue(client):
 def test_get_issue(client_with_issues):
     """Test retrieving a specific issue."""
     # Get the ID of the first created issue
-    issue_id = list(client_with_issues.get_issue_dict().keys())[0]
+    issue_id = next(iter(client_with_issues.get_issue_dict().keys()))
     issue = client_with_issues.get_issue(issue_id)
     assert issue.id == issue_id
     assert issue.title == "Bug 1"
@@ -101,7 +101,7 @@ def test_get_issues_with_filters(client_with_issues):
 
 def test_update_issue(client_with_issues):
     """Test updating an existing issue."""
-    issue_id = list(client_with_issues.get_issue_dict().keys())[0] # Get ID of "Bug 1"
+    issue_id = next(iter(client_with_issues.get_issue_dict().keys())) # Get ID of "Bug 1"
     original_issue = client_with_issues.get_issue(issue_id)
     original_updated_at = original_issue.updated_at
 
@@ -134,7 +134,7 @@ def test_update_issue_not_found(client):
 
 def test_add_comment(client_with_issues):
     """Test adding a comment to an issue."""
-    issue_id = list(client_with_issues.get_issue_dict().keys())[0] # Get ID of "Bug 1"
+    issue_id = next(iter(client_with_issues.get_issue_dict().keys())) # Get ID of "Bug 1"
     client_with_issues.set_current_user("commenter_user")
     comment_content = "This is a test comment."
 
