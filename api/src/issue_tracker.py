@@ -40,12 +40,13 @@ class MemoryIssue(Issue):
         self._id = str(uuid.uuid4())
         self._title = title
         self._description = description
-        self._status = kwargs.get("status", "open")
+        self._status = str(kwargs.get("status", "open"))
         self._creator = creator
         self._assignee = kwargs.get("assignee")
         self._created_at = datetime.now(tz=timezone.utc).isoformat()
         self._updated_at = self._created_at
-        self._labels = kwargs.get("labels", [])
+        labels_arg = kwargs.get("labels", [])
+        self._labels: list[str] = [str(label) for label in labels_arg] if isinstance(labels_arg, list) else []
         self._priority = kwargs.get("priority")
         self._comments: list[MemoryComment] = []
 
@@ -107,7 +108,8 @@ class MemoryIssue(Issue):
         if "assignee" in kwargs:
             self._assignee = kwargs["assignee"]
         if "labels" in kwargs:
-            self._labels = kwargs["labels"]
+            labels_arg = kwargs["labels"]
+            self._labels = [str(label) for label in labels_arg] if isinstance(labels_arg, list) else self._labels
         if "priority" in kwargs:
             self._priority = kwargs["priority"]
 
@@ -117,14 +119,15 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
     """An in-memory implementation of an Issue Tracker Client."""
 
     def __init__(self):
-        self._issues: dict[str, Issue] = {}
+        # Specify that this client works with MemoryIssue instances
+        self._issues: dict[str, MemoryIssue] = {}
         self._current_user = "default_user"  # In a real system, this would come from auth
 
     def set_current_user(self, username: str) -> None:
         """Set the current user for operations."""
         self._current_user = username
 
-    def get_issues(self, filters: dict[str, any] | None = None) -> Iterator[Issue]:
+    def get_issues(self, filters: dict[str, Any] | None = None) -> Iterator[Issue]:
         """Return an iterator of issues, optionally filtered."""
         issues = self._issues.values()
 
@@ -134,6 +137,8 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
                 match = True
                 for key, value in filters.items():
                     if key == "labels" and isinstance(value, list):
+                        # Add assertion to help the type checker
+                        assert isinstance(value, list)
                         # Check if any of the requested labels are in the issue's labels
                         if not any(label in issue.labels for label in value):
                             match = False
@@ -147,7 +152,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
 
         return iter(issues)
 
-    def get_issue_dict(self) -> dict[str, Issue]:
+    def get_issue_dict(self) -> dict[str, MemoryIssue]:
         """Return all issues as a dictionary."""
         return self._issues
 
@@ -164,7 +169,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         self._issues[issue.id] = issue
         return issue
 
-    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:  # noqa: ANN401
+    def update_issue(self, issue_id: str, **kwargs: Any) -> MemoryIssue:  # noqa: ANN401
         """Update an existing issue and return the updated version."""
         if issue_id not in self._issues:
             error_message = f"Issue with ID {issue_id} not found"
@@ -185,7 +190,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         issue.add_comment(comment)
         return comment
 
-    def search_issues(self, query: str) -> Iterator[Issue]:
+    def search_issues(self, query: str) -> Iterator[MemoryIssue]:
         """Search for issues matching the query string."""
         # Simple case-insensitive search in title and description
         query = query.lower()
