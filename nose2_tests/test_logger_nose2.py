@@ -1,5 +1,7 @@
 import unittest
+
 from src.logger import Logger
+
 
 class TestLoggerNose2(unittest.TestCase):
 
@@ -10,5 +12,5 @@ class TestLoggerNose2(unittest.TestCase):
         self.logger.log("add", 5)
         self.assertIn("add: 5", self.logger.get_logs())
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

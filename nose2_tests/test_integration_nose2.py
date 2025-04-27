@@ -1,8 +1,10 @@
 import unittest
 from unittest.mock import Mock
+
 from src.calculator import Calculator
 from src.logger import Logger
 from src.notifier import Notifier
+
 
 class TestIntegrationNose2(unittest.TestCase):
 
@@ -33,5 +35,5 @@ class TestIntegrationNose2(unittest.TestCase):
         self.assertIn("multiply: 15", logger.get_logs())
         self.assertTrue(notifier_mock.notify(result))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

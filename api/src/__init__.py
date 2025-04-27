@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import Any, Iterator, Protocol, runtime_checkable
+
 
 @runtime_checkable
 class Comment(Protocol):
@@ -95,11 +97,11 @@ class IssueTrackerClient(Protocol):
         """Return a specific issue by ID."""
         raise NotImplementedError
 
-    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:
+    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:  # noqa: ANN401
         """Create a new issue and return it."""
         raise NotImplementedError
 
-    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
+    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:  # noqa: ANN401
         """Update an existing issue and return the updated version."""
         raise NotImplementedError
 

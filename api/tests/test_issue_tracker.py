@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pytest
-import sys,os
-from api.src.issue_tracker import MemoryIssueTrackerClient, MemoryIssue, MemoryComment
+
+from api.src.issue_tracker import MemoryComment, MemoryIssue, MemoryIssueTrackerClient
+
 
 @pytest.fixture
 def client():
@@ -111,7 +112,7 @@ def test_update_issue(client_with_issues):
         status="in_progress",
         assignee="user3",
         labels=["bug", "critical"],
-        priority="critical"
+        priority="critical",
     )
 
     assert updated_issue.id == issue_id
@@ -159,7 +160,7 @@ def test_add_comment_issue_not_found(client):
         client.add_comment("non_existent_id", "Some comment")
 
 def test_get_comments(client_with_issues):
-    """Test retrieving comments from an issue.""" 
+    """Test retrieving comments from an issue."""
     issue_id = next(iter(client_with_issues.get_issue_dict().keys())) # Get ID of "Bug 1"
     client_with_issues.set_current_user("user_a")
     client_with_issues.add_comment(issue_id, "Comment 1")
