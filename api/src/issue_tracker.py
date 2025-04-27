@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from api.src import Comment, Issue, IssueTrackerClient
+from external.issue_tracker.api.src import Comment, Issue, IssueTrackerClient
 
 
 class MemoryComment(Comment):
