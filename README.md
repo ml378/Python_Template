@@ -1,33 +1,21 @@
-# Python Project with CI/CD Pipeline (CircleCI)
+# Python Issue Tracker
 
 ***Overview***
 
-This repository provides a modern Python project template with robust CI/CD capabilities. It implements a functional issue tracking system that allows users to create, comment on, and manage issues effectively. Built with industry best practices, this template showcases:
+hw4-integration
+This repository provides a modern Python project template with robust CI/CD capabilities. The project provides the core backend logic for an in-memory issue tracking system. It allows users to (programmatically) create, manage, comment on, and search for issues. The project is built with maintainability in mind, and showcases:
 
 - A complete issue tracking client implementation in Python
 - End-to-end testing strategy with both unit and integration tests
 - Comprehensive code quality tools and automation
 - Production-ready deployment pipeline with CircleCI
 
-***Features***
+***Key Features***
 
-1. Automated unit tests with pytest
-
-2. Test coverage report generated and browsable from CircleCI UI
-
-3. CI/CD pipeline using CircleCI
-
-4. Pre-commit checks with mypy and ruff
-
-5. Modern dependency management using uv
-
-6. Static analysis and formatting checks
-
-7. GitHub Actions for continuous integration
-
-   - Automatic testing on push and pull requests
-   - Configurable workflows for different environments
-   - Parallel test execution for faster feedback
+- Issue Management: Create issues, retrive details, update issue properties, track issue status
+- Collaboration, organization and search of all issues, using keywords and other properties
+- Automated unit tests with thorough coverage, a robust CI/CD pipeline, Github actions for continuous integration 
+- Pre-commit checks, dependency management, static analysis and formatting checks 
 
 ***Prerequisites***
 
@@ -37,7 +25,7 @@ This repository provides a modern Python project template with robust CI/CD capa
 4. A GitHub account for accessing the repository
 5. CircleCI account (for viewing CI/CD pipeline results)
 
-***Setup & Installation***
+# Setup & Installation
 
 Clone the repository:
 ```sh
@@ -75,54 +63,121 @@ xdg-open htmlcov/index.html  # Linux
 start htmlcov/index.html  # Windows
 ```
 
+# Usage Examples
+
+Ensure the package is accessible from the local python environment, or that the api directory is in your PYTHONPATH. 
+
+```
+from api.src import get_issue_tracker_client, Issue
+
+client = get_issue_tracker_client()
+
+client.set_current_user("dev_user_1")
+```
+
+Create an issue
+
+```
+new_issue = client.create_issue(
+     title="Issue Name",
+     description="Issue description.",
+     priority="medium",
+     labels=["bug", "ui"],
+     assignee="dev_user_2"
+ )
+```
+
+Add a comment 
+
+```
+comment = client.add_comment(
+     issue_id=new_issue.id,
+     content="Issue comment"
+ )
+```
+
+Update the issue 
+
+```
+updated_issue = client.update_issue(
+     issue_id=new_issue.id,
+     status="in_progress",
+     assignee="dev_user_1" # Reassigning
+ )
+```
+
+Get issue details
+
+```
+fetched_issue = client.get_issue(new_issue.id)
+print(f"Fetched Issue Title: {fetched_issue.title}")
+print("Comments:")
+for c in fetched_issue.get_comments():
+  print(f"- {c.content} (by {c.author})")
+```
+
+Filter issues
+
+```
+ui_bugs = client.get_issues(filters={"status": "open", "labels": ["ui"]})
+for issue in ui_bugs:
+  print(f"- {issue.id}: {issue.title}")
+```
+
+Search issues
+
+```
+search_results = client.search_issues("Name")
+for issue in search_results:
+  print(f"- {issue.id}: {issue.title}")
+```
+Close an issue
+
+```
+client.close_issue(issue_id=issue.id, resolution="fixed")
+```
+
 ***Project Structure***
 
 ```
 Python_Template/
-├── .circleci/          # CircleCI configuration
-├── .github/            # GitHub templates and workflows
-├── src/                # Source code for the issue tracker
-│   ├── __init__.py
-│   └── ...
-├── tests/              # Pytest test files
-├── nose2_tests/        # Nose2 test files
+├── .circleci/        
+├── .github/
+├── .api/                
+   ├── src/                # Source code for the issue tracker
+   │   ├── __init__.py
+   │   ├── issue_tracker.py
+   │   └── ...
+   ├── tests/             # Tests for the issue tracker  
+   │   ├── test_issue_tracker.py
+   │   └── ...
+├── tests/             
+├── nose2_tests/        
 ├── .pre-commit-config.yaml
-├── pyproject.toml      # Project configuration
+├── pyproject.toml      # Project configuration, metadata 
 ├── requirements.txt    # Project dependencies
 └── README.md           # This file
 ```
 
-***Development Workflow***
+# Development Workflow
 
 1. Create a new branch for your feature or bugfix
-2. Make your changes and write tests
-3. Run tests locally to ensure everything passes
-4. Submit a pull request for review
 
-***Usage Examples***
-
-Issue Tracker Client Usage:
-```python
-from src.issue_tracker import IssueTracker
-
-# Initialize the client
-tracker = IssueTracker(project_id="my-project")
-
-# Create a new issue
-issue = tracker.create_issue(
-    title="Bug: Application crashes on startup",
-    description="When launching the app on Windows, it crashes immediately",
-    priority="high"
-)
-
-# Add a comment to an issue
-tracker.add_comment(issue_id=issue.id, text="I can reproduce this on Windows 11")
-
-# Close an issue
-tracker.close_issue(issue_id=issue.id, resolution="fixed")
+```
+git checkout -b feature/your-feature-name
 ```
 
-***Pull Requests***
+2. Make your changes and write tests
+
+3. Run tests locally to ensure pre-commit checks passes
+   
+```
+pytest --cov=api/src
+```
+
+4. Submit a pull request using the provided template (.github/pull_request_template.md)
+
+# Pull Requests
 
 1. Use the pull request template from .github/pull_request_template/
 
@@ -132,13 +187,11 @@ tracker.close_issue(issue_id=issue.id, resolution="fixed")
 
 4. Describe any testing performed to ensure correctness.
 
-
-
 ***Tech Stack***
 
-Python 3.12
+Python 3.8+
 
-Pytest
+Pytest, Coverage.py, (Nose2)
 
 CircleCI
 
@@ -148,7 +201,16 @@ Ruff (Linting)
 
 Mypy (Type Checking)
 
-UV (Dependency Management)
+uv, pip (Dependency Management)
+
+# Further Improvements
+
+We plan to enhance this issue tracker with the following features:
+
+- Database Persistence, User Authentication
+- RESTful API and a web client
+- More sophisticated attributes in issue tracking, file attachments, real-time updates
+- Dockerization
 
 ***License***
 
@@ -167,3 +229,6 @@ To measure test coverage and generate a browsable report, run:
 pytest --cov=src --cov-report=html
 ```
 
+# Authors
+- William Zhou
+- Yize Liu

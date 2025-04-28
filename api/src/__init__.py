@@ -114,6 +114,10 @@ class IssueTrackerClient(Protocol):
     def search_issues(self, query: str) -> Iterator[Issue]:
         """Search for issues matching the query string."""
         raise NotImplementedError
+    
+    def close_issue(self, issue_id: str, resolution: str) -> Issue:
+        """Close an issue with a given resolution."""
+        raise NotImplementedError
 
 
 def get_issue_tracker_client() -> IssueTrackerClient:
