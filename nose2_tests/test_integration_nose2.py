@@ -7,7 +7,6 @@ from src.notifier import Notifier
 
 
 class TestIntegrationNose2(unittest.TestCase):
-
     def test_calculator_logger(self):
         calculator = Calculator()
         logger = Logger()
@@ -34,6 +33,7 @@ class TestIntegrationNose2(unittest.TestCase):
 
         self.assertIn("multiply: 15", logger.get_logs())
         self.assertTrue(notifier_mock.notify(result))
+
 
 if __name__ == "__main__":
     unittest.main()

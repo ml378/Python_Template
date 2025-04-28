@@ -9,11 +9,13 @@ def client() -> AIConversationClient:
     api = DummyAPIClient()
     return AIConversationClient(api_client=api)
 
+
 def test_send_message(client: AIConversationClient) -> None:
     session_id = client.start_new_session("test_user")
     response = client.send_message(session_id, "Hello")
     assert isinstance(response, dict)
     assert "content" in response
+
 
 def test_get_chat_history(client: AIConversationClient) -> None:
     session_id = client.start_new_session("test_user")
@@ -22,13 +24,16 @@ def test_get_chat_history(client: AIConversationClient) -> None:
     assert isinstance(history, list)
     assert len(history) == 2  # user + assistant
 
+
 def test_set_user_preferences(client: AIConversationClient) -> None:
     result = client.set_user_preferences("user_1", {"theme": "dark"})
     assert result is True
 
+
 def test_start_new_session(client: AIConversationClient) -> None:
     session_id = client.start_new_session("user_2")
     assert session_id.startswith("session_")
+
 
 def test_end_session(client: AIConversationClient) -> None:
     session_id = client.start_new_session("user_3")

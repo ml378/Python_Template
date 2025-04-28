@@ -5,17 +5,17 @@ from typing import Any, Dict, List, Optional
 
 
 class MessageRole(Enum):
-    """Enum representing the role of a message sender.
-    """
+    """Enum representing the role of a message sender."""
 
     USER = "user"
     SYSTEM = "system"
     FUNCTION = "function"
     ASSISTANT = "assistant"
 
+
 class Message:
     """Represents a single message in a conversation.
-    
+
     Attributes:
         content (str): The message content.
         role (MessageRole): The sender's role.
@@ -47,26 +47,22 @@ class Message:
 
     @property
     def id(self) -> str:
-        """Returns the unique ID of the message.
-        """
+        """Returns the unique ID of the message."""
         return self._id
 
     @property
     def content(self) -> str:
-        """Returns the content of the message.
-        """
+        """Returns the content of the message."""
         return self._content
 
     @property
     def role(self) -> MessageRole:
-        """Returns the role of the sender.
-        """
+        """Returns the role of the sender."""
         return self._role
 
     @property
     def timestamp(self) -> datetime:
-        """Returns the timestamp of the message.
-        """
+        """Returns the timestamp of the message."""
         return self._timestamp
 
     def to_dict(self) -> Dict[str, Any]:
@@ -106,9 +102,10 @@ class Message:
             timestamp=timestamp,
         )
 
+
 class Conversation:
     """Represents a full conversation consisting of multiple messages.
-    
+
     Attributes:
         id (str): Unique identifier for the conversation.
         title (str): Title of the conversation.
@@ -139,20 +136,17 @@ class Conversation:
 
     @property
     def id(self) -> str:
-        """Returns the conversation ID.
-        """
+        """Returns the conversation ID."""
         return self._id
 
     @property
     def title(self) -> str:
-        """Returns the conversation title.
-        """
+        """Returns the conversation title."""
         return self._title
 
     @property
     def messages(self) -> List[Message]:
-        """Returns a copy of the list of messages in the conversation.
-        """
+        """Returns a copy of the list of messages in the conversation."""
         return self._messages.copy()
 
     def add_message(self, message: Message) -> None:

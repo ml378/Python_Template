@@ -12,11 +12,13 @@ def test_calculator_logger():
     logger.log("add", result)
     assert "add: 10" in logger.get_logs()
 
+
 def test_logger_notifier():
     logger = Logger()
     notifier = Notifier(threshold=10)
     logger.log("multiply", 12)
     assert notifier.notify(12) is True
+
 
 def test_calculator_logger_mock_notifier():
     calculator = Calculator()

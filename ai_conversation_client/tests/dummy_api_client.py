@@ -10,7 +10,9 @@ class DummyAPIClient(IAIConversationClient):
 
     def send_message(self, session_id: str, message: str) -> dict[str, Any]:
         reply = f"Echo: {message}"
-        self.sessions.setdefault(session_id, []).append({"role": "user", "content": message})
+        self.sessions.setdefault(session_id, []).append(
+            {"role": "user", "content": message}
+        )
         self.sessions[session_id].append({"role": "assistant", "content": reply})
         return {
             "message_id": "dummy_msg",

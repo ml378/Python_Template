@@ -46,7 +46,9 @@ class MemoryIssue(Issue):
         self._created_at = datetime.now(tz=timezone.utc).isoformat()
         self._updated_at = self._created_at
         labels_arg = kwargs.get("labels", [])
-        self._labels: list[str] = [str(label) for label in labels_arg] if isinstance(labels_arg, list) else []
+        self._labels: list[str] = (
+            [str(label) for label in labels_arg] if isinstance(labels_arg, list) else []
+        )
         self._priority = kwargs.get("priority")
         self._comments: list[MemoryComment] = []
 
@@ -109,11 +111,16 @@ class MemoryIssue(Issue):
             self._assignee = kwargs["assignee"]
         if "labels" in kwargs:
             labels_arg = kwargs["labels"]
-            self._labels = [str(label) for label in labels_arg] if isinstance(labels_arg, list) else self._labels
+            self._labels = (
+                [str(label) for label in labels_arg]
+                if isinstance(labels_arg, list)
+                else self._labels
+            )
         if "priority" in kwargs:
             self._priority = kwargs["priority"]
 
         self._updated_at = datetime.now(tz=timezone.utc).isoformat()
+
 
 class MemoryIssueTrackerClient(IssueTrackerClient):
     """An in-memory implementation of an Issue Tracker Client."""
@@ -121,7 +128,9 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
     def __init__(self):
         # Specify that this client works with MemoryIssue instances
         self._issues: dict[str, MemoryIssue] = {}
-        self._current_user = "default_user"  # In a real system, this would come from auth
+        self._current_user = (
+            "default_user"  # In a real system, this would come from auth
+        )
 
     def set_current_user(self, username: str) -> None:
         """Set the current user for operations."""
@@ -143,7 +152,9 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
                         if not any(label in issue.labels for label in value):
                             match = False
                             break
-                    elif (key == "status" and getattr(issue, key) != value) or (key == "assignee" and getattr(issue, key) != value):
+                    elif (key == "status" and getattr(issue, key) != value) or (
+                        key == "assignee" and getattr(issue, key) != value
+                    ):
                         match = False
                         break
                 if match:
@@ -196,7 +207,8 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         query = query.lower()
 
         matching_issues = [
-            issue for issue in self._issues.values()
+            issue
+            for issue in self._issues.values()
             if query in issue.title.lower() or query in issue.description.lower()
         ]
 

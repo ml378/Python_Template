@@ -25,6 +25,7 @@ genai_model_class: GenerativeModelConstructor = genai.GenerativeModel
 
 load_dotenv()
 
+
 class GeminiAPIClient(IAIConversationClient):
     """GeminiAPIClient is an implementation of IAIConversationClient that interfaces with
     Google's Gemini 2.0 API to handle AI chat interactions.
@@ -35,7 +36,7 @@ class GeminiAPIClient(IAIConversationClient):
     def __init__(self) -> None:
         """Initializes the GeminiAPIClient.
 
-        Loads the Gemini API key from the environment, configures the SDK, 
+        Loads the Gemini API key from the environment, configures the SDK,
         and prepares model and session tracking.
         """
         self._api_key = os.getenv("GEMINI_API_KEY")

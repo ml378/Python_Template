@@ -6,7 +6,6 @@ from src.notifier import Notifier
 
 
 class TestEndToEndNose2(unittest.TestCase):
-
     def setUp(self):
         self.calc = Calculator()
         self.log = Logger()
@@ -19,6 +18,7 @@ class TestEndToEndNose2(unittest.TestCase):
 
         self.assertIn("multiply: 12", self.log.get_logs())
         self.assertTrue(notification_sent)
+
 
 if __name__ == "__main__":
     unittest.main()

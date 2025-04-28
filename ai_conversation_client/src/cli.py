@@ -41,6 +41,7 @@ async def interactive_chat(client: AIConversationClient, user_id: str) -> None:
         except Exception as e:
             print(f"Error: {e}")
 
+
 def list_sessions(client: AIConversationClient) -> None:
     """Placeholder function to list sessions.
 
@@ -49,6 +50,7 @@ def list_sessions(client: AIConversationClient) -> None:
 
     """
     print("Session listing is not implemented for the generic interface.")
+
 
 def show_history(client: AIConversationClient, session_id: str) -> None:
     """Display the message history for a given session.
@@ -68,6 +70,7 @@ def show_history(client: AIConversationClient, session_id: str) -> None:
             print(f"[{msg['timestamp']}] {msg['role'].capitalize()}: {msg['content']}")
     except Exception as e:
         print(f"Error: {e}")
+
 
 async def run_cli(client: AIConversationClient) -> None:
     """Parse command-line arguments and dispatch to appropriate handlers.
@@ -101,6 +104,7 @@ async def run_cli(client: AIConversationClient) -> None:
         list_sessions(client)
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     import asyncio

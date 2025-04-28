@@ -27,6 +27,7 @@ class Comment(Protocol):
         """Return the creation date of the comment."""
         raise NotImplementedError
 
+
 @runtime_checkable
 class Issue(Protocol):
     """An Issue in the issue tracker."""
@@ -85,6 +86,7 @@ class Issue(Protocol):
         """Return an iterator of comments for this issue."""
         raise NotImplementedError
 
+
 @runtime_checkable
 class IssueTrackerClient(Protocol):
     """An Issue Tracker Client used to manage issues."""
@@ -113,7 +115,9 @@ class IssueTrackerClient(Protocol):
         """Search for issues matching the query string."""
         raise NotImplementedError
 
+
 def get_issue_tracker_client() -> IssueTrackerClient:
     """Return an instance of an Issue Tracker Client."""
     from api.src.issue_tracker import MemoryIssueTrackerClient
+
     return MemoryIssueTrackerClient()

@@ -4,7 +4,6 @@ from src.calculator import Calculator
 
 
 class TestCalculatorNose2(unittest.TestCase):
-
     def setUp(self):
         self.calculator = Calculator()
 
@@ -16,6 +15,7 @@ class TestCalculatorNose2(unittest.TestCase):
 
     def test_multiplication(self):
         self.assertEqual(self.calculator.multiply(3, 3), 9)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,7 +13,7 @@ class AIIssueIntegration:
         issue_client: Optional[IssueTrackerClient] = None,
     ):
         """Initialize the integration with both clients.
-        
+
         Args:
             ai_client: The AI conversation client
             issue_client: The issue tracker client (uses default if None)
@@ -32,7 +32,7 @@ class AIIssueIntegration:
         Args:
             session_id: The conversation session ID
             message: The user's message
-            
+
         Returns:
             The AI response, potentially including issue tracker operation results
 
@@ -51,10 +51,10 @@ class AIIssueIntegration:
 
     def _process_commands(self, message: str) -> Optional[str]:
         """Check if message contains issue tracker commands and process them.
-        
+
         Args:
             message: The user message to check for commands
-            
+
         Returns:
             Command result message or None if no command was detected
 
@@ -69,7 +69,7 @@ class AIIssueIntegration:
 
     def _parse_create_issue(self, message: str) -> str:
         """Parse message for issue creation parameters.
-        
+
         Format expected: "create issue with title: X, description: Y"
         """
         # Extract title (basic parsing)
@@ -81,7 +81,9 @@ class AIIssueIntegration:
         title = title_desc[0].strip().strip(",")
 
         # Extract description if available
-        description = title_desc[1].strip() if len(title_desc) > 1 else "Created via AI assistant"
+        description = (
+            title_desc[1].strip() if len(title_desc) > 1 else "Created via AI assistant"
+        )
 
         # Create the issue
         try:
