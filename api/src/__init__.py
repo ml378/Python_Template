@@ -115,5 +115,5 @@ class IssueTrackerClient(Protocol):
 
 def get_issue_tracker_client() -> IssueTrackerClient:
     """Return an instance of an Issue Tracker Client."""
-    from api.src.issue_tracker import MemoryIssueTrackerClient
+    from external.issue_tracker.api.src.issue_tracker import MemoryIssueTrackerClient
     return MemoryIssueTrackerClient()
