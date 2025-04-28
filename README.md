@@ -2,7 +2,12 @@
 
 ***Overview***
 
-This repository contains a Python project with automated unit tests, integration tests, and test coverage reports powered by CircleCI.The minimum viable version of this project would include a functional issue tracker client, where user could raise an issue, others will be able to comment on it, and the issues could be managed. 
+This repository provides a modern Python project template with robust CI/CD capabilities. It implements a functional issue tracking system that allows users to create, comment on, and manage issues effectively. Built with industry best practices, this template showcases:
+
+- A complete issue tracking client implementation in Python
+- End-to-end testing strategy with both unit and integration tests
+- Comprehensive code quality tools and automation
+- Production-ready deployment pipeline with CircleCI
 
 ***Features***
 
@@ -18,14 +23,19 @@ This repository contains a Python project with automated unit tests, integration
 
 6. Static analysis and formatting checks
 
-7. GitHub Actions for continuous integratio
+7. GitHub Actions for continuous integration
 
+   - Automatic testing on push and pull requests
+   - Configurable workflows for different environments
+   - Parallel test execution for faster feedback
 
 ***Prerequisites***
 
 1. Python 3.8 or higher
-
 2. UV for Python dependency management
+3. Git installed on your system
+4. A GitHub account for accessing the repository
+5. CircleCI account (for viewing CI/CD pipeline results)
 
 ***Setup & Installation***
 
@@ -34,13 +44,20 @@ Clone the repository:
 git clone https://github.com/ml378/Python_Template.git
 cd Python_Template
 ```
+
 Install dependencies:
 ```sh
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install uv
 uv pip install -r requirements.txt
 ```
+
+Configure pre-commit hooks:
+```sh
+pre-commit install
+```
+
 Run tests:
 ```sh
 pytest --cov=src --cov-report=html
@@ -52,29 +69,58 @@ nose2 -v nose2_tests
 
 View test coverage:
 
-```sh open htmlcov/index.html  # macOS
+```sh
+open htmlcov/index.html  # macOS
 xdg-open htmlcov/index.html  # Linux
+start htmlcov/index.html  # Windows
 ```
 
-***CI/CD Pipeline (CircleCI)***
+***Project Structure***
 
-****How it Works****
+```
+Python_Template/
+├── .circleci/          # CircleCI configuration
+├── .github/            # GitHub templates and workflows
+├── src/                # Source code for the issue tracker
+│   ├── __init__.py
+│   └── ...
+├── tests/              # Pytest test files
+├── nose2_tests/        # Nose2 test files
+├── .pre-commit-config.yaml
+├── pyproject.toml      # Project configuration
+├── requirements.txt    # Project dependencies
+└── README.md           # This file
+```
 
-Push to GitHub → CircleCI triggers the pipeline➡️ Runs:
+***Development Workflow***
 
-1. Unit tests (pytest)
+1. Create a new branch for your feature or bugfix
+2. Make your changes and write tests
+3. Run tests locally to ensure everything passes
+4. Submit a pull request for review
 
-2. Coverage report (pytest-cov)
+***Usage Examples***
 
-3. Linting (ruff)
+Issue Tracker Client Usage:
+```python
+from src.issue_tracker import IssueTracker
 
-Test results are visible in the CircleCI "Tests" tab➡️ Coverage reports are stored as "Artifacts", browsable in CircleCI UI.
+# Initialize the client
+tracker = IssueTracker(project_id="my-project")
 
-***View Test Coverage in CircleCI***
+# Create a new issue
+issue = tracker.create_issue(
+    title="Bug: Application crashes on startup",
+    description="When launching the app on Windows, it crashes immediately",
+    priority="high"
+)
 
-1️⃣ Go to CircleCI Dashboard2️⃣ Open the latest Job Run3️⃣ Navigate to Artifacts4️⃣ Click on test-coverage/index.html to browse the report
+# Add a comment to an issue
+tracker.add_comment(issue_id=issue.id, text="I can reproduce this on Windows 11")
 
-
+# Close an issue
+tracker.close_issue(issue_id=issue.id, resolution="fixed")
+```
 
 ***Pull Requests***
 
