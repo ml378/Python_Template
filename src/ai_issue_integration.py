@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from ai_conversation_client.src.client import AIConversationClient
+from src.ai_client import AIConversationClient
 from src import IssueTrackerClient, get_issue_tracker_client
 
 

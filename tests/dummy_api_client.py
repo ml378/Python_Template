@@ -1,6 +1,6 @@
 from typing import Any
 
-from ai_conversation_client.interface import IAIConversationClient
+from src.ai_interface import IAIConversationClient
 
 
 class DummyAPIClient(IAIConversationClient):

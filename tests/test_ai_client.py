@@ -1,6 +1,6 @@
 import pytest
 
-from ai_conversation_client.client import AIConversationClient
+from src.ai_client import AIConversationClient
 from tests.dummy_api_client import DummyAPIClient
 
 
