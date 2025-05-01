@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
-from src.ai_client import AIConversationClient
 from src import IssueTrackerClient, get_issue_tracker_client
+from src.ai_client import AIConversationClient
 
 
 class AIIssueIntegration:

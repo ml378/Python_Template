@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Command-line interface for the AI Conversation Client.
 
 Provides tools for interacting with the AI assistant via terminal,
@@ -109,8 +108,8 @@ async def run_cli(client: AIConversationClient) -> None:
 if __name__ == "__main__":
     import asyncio
 
-    from ai_conversation_client.client import AIConversationClient
-    from ai_conversation_client.gemini_api_client import GeminiAPIClient
+    from src.ai_client import AIConversationClient
+    from src.gemini_api_client import GeminiAPIClient
 
     # Create the backend Gemini client and wrap it in a high-level interface
     api_client = GeminiAPIClient()

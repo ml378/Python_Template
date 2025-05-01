@@ -129,7 +129,7 @@ def test_get_issues_with_filters(client_with_issues):
 
     # Filter by multiple criteria
     open_bug_issues = list(
-        client_with_issues.get_issues(filters={"status": "open", "labels": ["bug"]})
+        client_with_issues.get_issues(filters={"status": "open", "labels": ["bug"]}),
     )
     assert len(open_bug_issues) == 1
     assert open_bug_issues[0].title == "Bug 1"
@@ -138,7 +138,7 @@ def test_get_issues_with_filters(client_with_issues):
 def test_update_issue(client_with_issues):
     """Test updating an existing issue."""
     issue_id = next(
-        iter(client_with_issues.get_issue_dict().keys())
+        iter(client_with_issues.get_issue_dict().keys()),
     )  # Get ID of "Bug 1"
     original_issue = client_with_issues.get_issue(issue_id)
     original_updated_at = original_issue.updated_at
@@ -175,7 +175,7 @@ def test_update_issue_not_found(client):
 def test_add_comment(client_with_issues):
     """Test adding a comment to an issue."""
     issue_id = next(
-        iter(client_with_issues.get_issue_dict().keys())
+        iter(client_with_issues.get_issue_dict().keys()),
     )  # Get ID of "Bug 1"
     client_with_issues.set_current_user("commenter_user")
     comment_content = "This is a test comment."
@@ -205,7 +205,7 @@ def test_add_comment_issue_not_found(client):
 def test_get_comments(client_with_issues):
     """Test retrieving comments from an issue."""
     issue_id = next(
-        iter(client_with_issues.get_issue_dict().keys())
+        iter(client_with_issues.get_issue_dict().keys()),
     )  # Get ID of "Bug 1"
     client_with_issues.set_current_user("user_a")
     client_with_issues.add_comment(issue_id, "Comment 1")
@@ -234,7 +234,7 @@ def test_search_issues(client_with_issues):
     assert results_feature[0].title == "Feature Request"
 
     results_description = list(
-        client_with_issues.search_issues("another bug")
+        client_with_issues.search_issues("another bug"),
     )  # Search in description (case-insensitive)
     assert len(results_description) == 1
     assert results_description[0].title == "Bug 2"

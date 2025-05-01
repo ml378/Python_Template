@@ -213,7 +213,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         ]
 
         return iter(matching_issues)
-    
+
     def close_issue(self, issue_id: str, resolution: str) -> Issue:
         """Close an issue with a given resolution."""
         if issue_id not in self._issues:
@@ -224,6 +224,6 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         issue.update(status="closed")
         self.add_comment(issue_id, f"Closed with resolution: {resolution}")
         return issue
-    
+
     def get_current_user(self) -> str:
         return self._current_user

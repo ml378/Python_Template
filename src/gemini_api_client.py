@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, Protocol
 import requests
 from dotenv import load_dotenv
 
-from src.conversation import Conversation, Message, MessageRole
 from src.ai_interface import IAIConversationClient
+from src.conversation import Conversation, Message, MessageRole
 
 # MyPy-safe dynamic typing for Gemini SDK
 if TYPE_CHECKING:
