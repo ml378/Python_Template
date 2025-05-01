@@ -11,6 +11,7 @@ import contextlib
 from src.ai_client import AIConversationClient
 
 
+
 async def interactive_chat(client: AIConversationClient, user_id: str) -> None:
     """Start an interactive chat loop with the AI assistant for a given user.
 
@@ -20,24 +21,45 @@ async def interactive_chat(client: AIConversationClient, user_id: str) -> None:
 
     """
     session_id = client.start_new_session(user_id)
+    print(f"Chat session started (ID: {session_id}). Type 'exit' or 'quit' to end.")
 
     # Event loop needed for non-blocking input
     loop = asyncio.get_event_loop()
 
     while True:
-        user_input = await loop.run_in_executor(None, input, "You: ")
-        user_input = user_input.strip()
+        try:
+            user_input = await loop.run_in_executor(None, input, "You: ")
+            user_input = user_input.strip()
 
-        if user_input.lower() in {"exit", "quit"}:
+            if user_input.lower() in {"exit", "quit"}:
+                client.end_session(session_id)
+                print("Session ended.")
+                break
+
+            if not user_input:
+                continue
+
+            # Send message and get response
+            ai_response = client.send_message(session_id, user_input)
+
+            # Print AI response if available
+            if ai_response:
+                print(f"AI: {ai_response}")
+
+        except EOFError:  # Handle Ctrl+D
             client.end_session(session_id)
+            print("\nSession ended.")
             break
-
-        with contextlib.suppress(Exception):
-            client.send_message(session_id, user_input)
+        except KeyboardInterrupt:  # Handle Ctrl+C
+            client.end_session(session_id)
+            print("\nSession interrupted and ended.")
+            break
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 
 def list_sessions(client: AIConversationClient) -> None:
-    """Placeholder function to list sessions.
+    """List active sessions (placeholder).
 
     Args:
         client (AIConversationClient): The conversation client instance.
@@ -60,7 +82,7 @@ def show_history(client: AIConversationClient, session_id: str) -> None:
 
         for _msg in history:
             pass
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass
 
 

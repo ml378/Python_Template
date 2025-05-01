@@ -13,7 +13,7 @@ class TestMemoryIssueTrackerClient(unittest.TestCase):
         self.client = MemoryIssueTrackerClient()
 
     def setup_test_issues(self):
-        """Helper to set up test issues."""
+        """Set up test issues."""
         self.client.set_current_user("user1")
         self.client.create_issue(
             "Bug 1",

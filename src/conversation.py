@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -45,7 +45,7 @@ class Message:
         self._content = content
         self._role = role
         self._id = message_id or f"msg_{uuid.uuid4().hex[:8]}"
-        self._timestamp = timestamp or datetime.now(tz=datetime.timezone.utc)
+        self._timestamp = timestamp or datetime.now(tz=timezone.utc)
 
     @property
     def id(self) -> str:
@@ -96,7 +96,7 @@ class Message:
         try:
             timestamp = datetime.fromisoformat(timestamp_str) if timestamp_str else None
         except ValueError:
-            timestamp = datetime.now(tz=datetime.timezone.utc)
+            timestamp = datetime.now(tz=timezone.utc)
 
         return cls(
             content=data.get("content", ""),
