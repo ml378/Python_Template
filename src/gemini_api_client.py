@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib
 import os
 import uuid
@@ -13,8 +15,8 @@ from src.conversation import Conversation, Message, MessageRole
 if TYPE_CHECKING:
 
     class GenerativeModelConstructor(Protocol):
-        def __call__(self, model_name: str) -> Any: ...
-        def start_chat(self, history: list[Any]) -> Any: ...
+        def __call__(self, model_name: str) -> Any: ...  # noqa: ANN401
+        def start_chat(self, history: list[Any]) -> Any: ...  # noqa: ANN401
 else:
     GenerativeModelConstructor = Any
 
@@ -27,14 +29,13 @@ load_dotenv()
 
 
 class GeminiAPIClient(IAIConversationClient):
-    """GeminiAPIClient is an implementation of IAIConversationClient that interfaces with
-    Google's Gemini 2.0 API to handle AI chat interactions.
+    """GeminiAPIClient is an implementation of IAIConversationClient that interfaces with Google's Gemini 2.0 API to handle AI chat interactions.
 
     It manages sessions, messages, user preferences, and generates assistant responses.
     """
 
     def __init__(self) -> None:
-        """Initializes the GeminiAPIClient.
+        """Initialize the GeminiAPIClient.
 
         Loads the Gemini API key from the environment, configures the SDK,
         and prepares model and session tracking.
@@ -42,7 +43,8 @@ class GeminiAPIClient(IAIConversationClient):
         self._api_key = os.getenv("GEMINI_API_KEY")
 
         if not self._api_key:
-            raise ValueError("Missing GEMINI_API_KEY in .env file")
+            msg = "Missing GEMINI_API_KEY in .env file"
+            raise ValueError(msg)
 
         genai_configure(api_key=self._api_key)
         self._model: Any = genai_model_class("gemini-2.0-flash")
@@ -57,7 +59,7 @@ class GeminiAPIClient(IAIConversationClient):
         self._user_preferences: dict[str, dict[str, Any]] = {}
 
     def send_message(self, session_id: str, message: str) -> dict[str, Any]:
-        """Sends a message from the user and returns the AI's response.
+        """Send a message from the user and return the AI's response.
 
         Args:
             session_id (str): The unique identifier for the session.
@@ -72,7 +74,8 @@ class GeminiAPIClient(IAIConversationClient):
 
         """
         if session_id not in self._sessions:
-            raise ValueError("Session not found")
+            msg = "Session not found"
+            raise ValueError(msg)
 
         convo = self._sessions[session_id]
         convo.add_message(Message(message, MessageRole.USER))
@@ -85,7 +88,8 @@ class GeminiAPIClient(IAIConversationClient):
         headers = {"Content-Type": "application/json"}
 
         try:
-            response = requests.post(self._model_url, headers=headers, json=payload)
+            # Add a timeout (e.g., 30 seconds) to prevent indefinite hanging
+            response = requests.post(self._model_url, headers=headers, json=payload, timeout=30)
             response.raise_for_status()
             parsed = response.json()
             text = parsed["candidates"][0]["content"]["parts"][0]["text"].strip()
@@ -99,10 +103,11 @@ class GeminiAPIClient(IAIConversationClient):
                 "timestamp": assistant_msg.timestamp.isoformat(),
             }
         except Exception as e:
-            raise RuntimeError(f"Gemini API error: {e}")
+            msg = f"Gemini API error: {e}"
+            raise RuntimeError(msg) from e
 
     def get_chat_history(self, session_id: str) -> list[dict[str, Any]]:
-        """Returns the full chat history for a given session.
+        """Return the full chat history for a given session.
 
         Args:
             session_id (str): The unique identifier for the session.
@@ -125,7 +130,7 @@ class GeminiAPIClient(IAIConversationClient):
         ]
 
     def set_user_preferences(self, user_id: str, preferences: dict[str, Any]) -> bool:
-        """Stores user-specific preferences (e.g., system prompt).
+        """Store user-specific preferences (e.g., system prompt).
 
         Args:
             user_id (str): The unique identifier for the user.
@@ -139,7 +144,7 @@ class GeminiAPIClient(IAIConversationClient):
         return True
 
     def start_new_session(self, user_id: str) -> str:
-        """Starts a new conversation session for a user.
+        """Start a new conversation session for a user.
 
         Args:
             user_id (str): The user's unique ID.
@@ -156,7 +161,7 @@ class GeminiAPIClient(IAIConversationClient):
         return session_id
 
     def end_session(self, session_id: str) -> bool:
-        """Ends and cleans up a session.
+        """End and clean up a session.
 
         Args:
             session_id (str): The ID of the session to end.

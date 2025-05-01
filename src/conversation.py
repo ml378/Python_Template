@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MessageRole(Enum):
@@ -28,10 +30,10 @@ class Message:
         self,
         content: str,
         role: MessageRole = MessageRole.USER,
-        message_id: Optional[str] = None,
-        timestamp: Optional[datetime] = None,
+        message_id: str | None = None,
+            timestamp: datetime | None = None,
     ):
-        """Initializes a Message object.
+        """Initialize a Message object.
 
         Args:
             content (str): The message text.
@@ -43,7 +45,7 @@ class Message:
         self._content = content
         self._role = role
         self._id = message_id or f"msg_{uuid.uuid4().hex[:8]}"
-        self._timestamp = timestamp or datetime.now()
+        self._timestamp = timestamp or datetime.now(tz=datetime.timezone.utc)
 
     @property
     def id(self) -> str:
@@ -65,8 +67,9 @@ class Message:
         """Returns the timestamp of the message."""
         return self._timestamp
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Serializes the message to a dictionary format.
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the message to a dictionary format.
+
         Only includes role and content.
 
         Returns:
@@ -79,7 +82,7 @@ class Message:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Message":
+    def from_dict(cls, data: dict[str, Any]) -> Message:
         """Deserializes a message object from a dictionary.
 
         Args:
@@ -93,7 +96,7 @@ class Message:
         try:
             timestamp = datetime.fromisoformat(timestamp_str) if timestamp_str else None
         except ValueError:
-            timestamp = datetime.now()
+            timestamp = datetime.now(tz=datetime.timezone.utc)
 
         return cls(
             content=data.get("content", ""),
@@ -115,11 +118,11 @@ class Conversation:
 
     def __init__(
         self,
-        conversation_id: Optional[str] = None,
-        title: Optional[str] = None,
-        system_prompt: Optional[str] = None,
+        conversation_id: str | None = None,
+        title: str | None = None,
+        system_prompt: str | None = None,
     ):
-        """Initializes a new Conversation instance.
+        """Initialize a new Conversation instance.
 
         Args:
             conversation_id (str, optional): Custom ID for the conversation.
@@ -129,7 +132,7 @@ class Conversation:
         """
         self._id = conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
         self._title = title or f"Conversation {self._id}"
-        self._messages: List[Message] = []
+        self._messages: list[Message] = []
 
         if system_prompt:
             self.add_message(Message(system_prompt, MessageRole.SYSTEM))
@@ -145,12 +148,12 @@ class Conversation:
         return self._title
 
     @property
-    def messages(self) -> List[Message]:
+    def messages(self) -> list[Message]:
         """Returns a copy of the list of messages in the conversation."""
         return self._messages.copy()
 
     def add_message(self, message: Message) -> None:
-        """Adds a message to the conversation.
+        """Add a message to the conversation.
 
         Args:
             message (Message): The message object to add.
@@ -158,8 +161,8 @@ class Conversation:
         """
         self._messages.append(message)
 
-    def get_latest_messages(self, count: int = 5) -> List[Message]:
-        """Returns the most recent messages in the conversation.
+    def get_latest_messages(self, count: int = 5) -> list[Message]:
+        """Return the most recent messages in the conversation.
 
         Args:
             count (int, optional): Number of latest messages to retrieve. Defaults to 5.
@@ -170,8 +173,8 @@ class Conversation:
         """
         return self._messages[-count:] if self._messages else []
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Serializes the conversation to a dictionary format.
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the conversation to a dictionary format.
 
         Returns:
             dict: Dictionary containing the conversation data.
@@ -192,7 +195,7 @@ class Conversation:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Conversation":
+    def from_dict(cls, data: dict[str, Any]) -> Conversation:
         """Deserializes a conversation from dictionary data.
 
         Args:

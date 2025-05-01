@@ -1,7 +1,11 @@
-from typing import Any, Dict, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from src import IssueTrackerClient, get_issue_tracker_client
-from src.ai_client import AIConversationClient
+
+if TYPE_CHECKING:
+    from src.ai_client import AIConversationClient
 
 
 class AIIssueIntegration:
@@ -10,7 +14,7 @@ class AIIssueIntegration:
     def __init__(
         self,
         ai_client: AIConversationClient,
-        issue_client: Optional[IssueTrackerClient] = None,
+        issue_client: IssueTrackerClient | None = None,
     ):
         """Initialize the integration with both clients.
 
@@ -26,7 +30,7 @@ class AIIssueIntegration:
             "list_issues": self._parse_list_issues,
         }
 
-    def process_message(self, session_id: str, message: str) -> Dict[str, Any]:
+    def process_message(self, session_id: str, message: str) -> dict[str, Any]:
         """Process a user message and execute issue tracker commands if detected.
 
         Args:
@@ -49,7 +53,7 @@ class AIIssueIntegration:
 
         return response
 
-    def _process_commands(self, message: str) -> Optional[str]:
+    def _process_commands(self, message: str) -> str | None:
         """Check if message contains issue tracker commands and process them.
 
         Args:
@@ -91,20 +95,22 @@ class AIIssueIntegration:
                 title=title,
                 description=description,
             )
-            return f"✅ Issue created successfully with ID: {issue.id}\nTitle: {issue.title}"
-        except Exception as e:
+        except RuntimeError as e: # Or a more specific exception from IssueTrackerClient
             return f"❌ Failed to create issue: {e!s}"
+        else:
+            return f"✅ Issue created successfully with ID: {issue.id}\nTitle: {issue.title}"
 
     def _parse_list_issues(self, _message: str) -> str:
         """List recent issues from the tracker."""
         try:
-            issues = list(self.issue_client.get_issues())[:5]  # Get up to 5 issues
+            issues = list(self.issue_client.get_issues(filters={}))[:5]  # Get up to 5 issues
             if not issues:
                 return "No issues found."
 
             result = "Recent issues:\n"
             for issue in issues:
                 result += f"- [{issue.id}] {issue.title} ({issue.status})\n"
-            return result
-        except Exception as e:
+        except RuntimeError as e:  # Or a more specific exception from IssueTrackerClient
             return f"❌ Failed to list issues: {e!s}"
+        else:
+            return result

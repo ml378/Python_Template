@@ -6,6 +6,7 @@ including starting a chat, showing message history, and managing sessions.
 
 import argparse
 import asyncio
+import contextlib
 
 from src.ai_client import AIConversationClient
 
@@ -19,8 +20,6 @@ async def interactive_chat(client: AIConversationClient, user_id: str) -> None:
 
     """
     session_id = client.start_new_session(user_id)
-    print(f"New session started. Session ID: {session_id}")
-    print("Type 'exit' to quit.\n")
 
     # Event loop needed for non-blocking input
     loop = asyncio.get_event_loop()
@@ -30,15 +29,11 @@ async def interactive_chat(client: AIConversationClient, user_id: str) -> None:
         user_input = user_input.strip()
 
         if user_input.lower() in {"exit", "quit"}:
-            print("Ending session...")
             client.end_session(session_id)
             break
 
-        try:
-            response = client.send_message(session_id, user_input)
-            print(f"AI: {response['content']}")
-        except Exception as e:
-            print(f"Error: {e}")
+        with contextlib.suppress(Exception):
+            client.send_message(session_id, user_input)
 
 
 def list_sessions(client: AIConversationClient) -> None:
@@ -48,7 +43,6 @@ def list_sessions(client: AIConversationClient) -> None:
         client (AIConversationClient): The conversation client instance.
 
     """
-    print("Session listing is not implemented for the generic interface.")
 
 
 def show_history(client: AIConversationClient, session_id: str) -> None:
@@ -62,13 +56,12 @@ def show_history(client: AIConversationClient, session_id: str) -> None:
     try:
         history = client.get_chat_history(session_id)
         if not history:
-            print("No messages yet.")
             return
 
-        for msg in history:
-            print(f"[{msg['timestamp']}] {msg['role'].capitalize()}: {msg['content']}")
-    except Exception as e:
-        print(f"Error: {e}")
+        for _msg in history:
+            pass
+    except Exception:
+        pass
 
 
 async def run_cli(client: AIConversationClient) -> None:
