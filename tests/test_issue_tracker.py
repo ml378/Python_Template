@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from api.src.issue_tracker import MemoryComment, MemoryIssue, MemoryIssueTrackerClient
+from src.issue_tracker import MemoryComment, MemoryIssue, MemoryIssueTrackerClient
 
 
 @pytest.fixture

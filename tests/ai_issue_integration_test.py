@@ -1,7 +1,7 @@
 import pytest
 
 from ai_conversation_client.src.client import AIConversationClient
-from api.src.issue_tracker import MemoryIssueTrackerClient
+from src.issue_tracker import MemoryIssueTrackerClient
 from src.ai_issue_integration import AIIssueIntegration
 from tests.dummy_api_client import DummyAPIClient
 
