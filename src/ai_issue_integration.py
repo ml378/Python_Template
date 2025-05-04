@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import logging
+
+from typing import TYPE_CHECKING, Any, Dict, Callable
 
 from src import IssueTrackerClient, get_issue_tracker_client
 
 if TYPE_CHECKING:
     from src.ai_client import AIConversationClient
 
-
+# todo: replace generic RunTimeError catches
 class AIIssueIntegration:
     """Integration between AI conversation client and issue tracker."""
 
@@ -26,8 +28,8 @@ class AIIssueIntegration:
         self.ai_client = ai_client
         self.issue_client = issue_client or get_issue_tracker_client()
         self.commands = {
-            "create_issue": self._parse_create_issue,
-            "list_issues": self._parse_list_issues,
+            "create issue": self._parse_create_issue,
+            "list issues": self._parse_list_issues,
         }
 
     def process_message(self, session_id: str, message: str) -> dict[str, Any]:
@@ -41,13 +43,10 @@ class AIIssueIntegration:
             The AI response, potentially including issue tracker operation results
 
         """
-        # First, send message to AI client for processing
         response = self.ai_client.send_message(session_id, message)
 
-        # Check if message contains issue creation commands
         command_result = self._process_commands(message)
 
-        # If command was executed, append result to AI response
         if command_result:
             response["content"] += f"\n\n{command_result}"
 
@@ -76,41 +75,50 @@ class AIIssueIntegration:
 
         Format expected: "create issue with title: X, description: Y"
         """
-        # Extract title (basic parsing)
-        title_parts = message.split("title:", 1)
-        if len(title_parts) < 2:
-            return "Could not parse issue title. Please specify 'title: your title'"
-
-        title_desc = title_parts[1].split("description:", 1)
-        title = title_desc[0].strip().strip(",")
-
-        # Extract description if available
-        description = (
-            title_desc[1].strip() if len(title_desc) > 1 else "Created via AI assistant"
-        )
-
-        # Create the issue
         try:
+            lower_message = message.lower()
+            if "title:" not in lower_message:
+                 return "Could not parse issue title. Please specify 'title: your title'"
+
+            title_start_index = lower_message.find("title:") + len("title:")
+            title_part = message[title_start_index:] 
+
+            desc_marker = "description:"
+            desc_start_index = title_part.lower().find(desc_marker)
+
+            if desc_start_index != -1:
+                title = title_part[:desc_start_index].strip().rstrip(',') 
+                description = title_part[desc_start_index + len(desc_marker):].strip()
+            else:
+                title = title_part.strip().rstrip(',')
+                description = "Created via AI assistant" 
+
+            if not title: 
+                 return "Could not parse issue title. Title appears to be empty."
+
             issue = self.issue_client.create_issue(
                 title=title,
                 description=description,
             )
-        except RuntimeError as e: # Or a more specific exception from IssueTrackerClient
-            return f"❌ Failed to create issue: {e!s}"
-        else:
-            return f"✅ Issue created successfully with ID: {issue.id}\nTitle: {issue.title}"
+            return f"Issue created successfully with ID: {issue.id}\nTitle: {issue.title}"
+
+        except Exception as e:
+            logging.error(f"Error creating issue via AI: {e!s}", exc_info=True)
+            return f"Failed to create issue: {e!s}"
 
     def _parse_list_issues(self, _message: str) -> str:
         """List recent issues from the tracker."""
+        result = ""
         try:
-            issues = list(self.issue_client.get_issues(filters={}))[:5]  # Get up to 5 issues
+            issues = list(self.issue_client.get_issues(filters={}))[:5] 
             if not issues:
                 return "No issues found."
 
             result = "Recent issues:\n"
             for issue in issues:
                 result += f"- [{issue.id}] {issue.title} ({issue.status})\n"
-        except RuntimeError as e:  # Or a more specific exception from IssueTrackerClient
-            return f"❌ Failed to list issues: {e!s}"
+        except RuntimeError as e:  
+            logging.error(f"Error listing issues: {e!s}", exc_info=True)
+            return f"Failed to list issues: {e!s}"
         else:
-            return result
+            return result.strip()

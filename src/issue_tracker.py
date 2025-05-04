@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import uuid
+import json 
+import os 
+import logging
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
 from src import Comment, Issue, IssueTrackerClient
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class MemoryComment(Comment):
@@ -31,6 +36,24 @@ class MemoryComment(Comment):
     @property
     def created_at(self) -> str:
         return self._created_at
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize comment to a dictionary."""
+        return {
+            "id": self._id,
+            "author": self._author,
+            "content": self._content,
+            "created_at": self._created_at,
+    }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MemoryComment:
+        """Deserialize comment from a dictionary."""
+        # creates a new instance, id will match but object is new; override generated uuid 
+        comment = cls(author=data["author"], content=data["content"])
+        comment._id = data["id"]
+        comment._created_at = data["created_at"]
+        return comment
 
 
 class MemoryIssue(Issue):
@@ -120,16 +143,52 @@ class MemoryIssue(Issue):
             self._priority = kwargs["priority"]
 
         self._updated_at = datetime.now(tz=timezone.utc).isoformat()
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize issue and its comments to a dictionary."""
+        return {
+            "id": self._id,
+            "title": self._title,
+            "description": self._description,
+            "status": self._status,
+            "creator": self._creator,
+            "assignee": self._assignee,
+            "created_at": self._created_at,
+            "updated_at": self._updated_at,
+            "labels": self._labels,
+            "priority": self._priority,
+            "comments": [comment.to_dict() for comment in self._comments],
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MemoryIssue:
+        """Deserialize issue and its comments from a dictionary."""
+        issue = cls(
+            title=data["title"],
+            description=data["description"],
+            creator=data["creator"],
+            status=data["status"],
+            assignee=data["assignee"],
+            labels=data["labels"],
+            priority=data["priority"],
+        )
+
+        issue._id = data["id"]
+        issue._created_at = data["created_at"]
+        issue._updated_at = data["updated_at"]
+
+        issue._comments = [MemoryComment.from_dict(c_data) for c_data in data["comments"]]
+        return issue
 
 
 class MemoryIssueTrackerClient(IssueTrackerClient):
     """An in-memory implementation of an Issue Tracker Client."""
 
     def __init__(self):
-        # Specify that this client works with MemoryIssue instances
+        # specify that this client works with MemoryIssue instances
         self._issues: dict[str, MemoryIssue] = {}
         self._current_user = (
-            "default_user"  # In a real system, this would come from auth
+            "default_user"  # todo: implement auth system 
         )
 
     def set_current_user(self, username: str) -> None:
@@ -146,9 +205,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
                 match = True
                 for key, value in filters.items():
                     if key == "labels" and isinstance(value, list):
-                        # Add assertion to help the type checker
                         assert isinstance(value, list)
-                        # Check if any of the requested labels are in the issue's labels
                         if not any(label in issue.labels for label in value):
                             match = False
                             break
@@ -203,7 +260,6 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
 
     def search_issues(self, query: str) -> Iterator[MemoryIssue]:
         """Search for issues matching the query string."""
-        # Simple case-insensitive search in title and description
         query = query.lower()
 
         matching_issues = [
@@ -227,3 +283,155 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
 
     def get_current_user(self) -> str:
         return self._current_user
+    
+
+class FileIssueTrackerClient(IssueTrackerClient):
+    """An Issue Tracker Client that persists issues to a JSON file."""
+
+    def __init__(self, filepath: str = "data/issues.json"):
+        self._filepath = filepath
+        self._issues: dict[str, MemoryIssue] = {}
+        self._current_user = "default_user" 
+        self._ensure_data_dir_exists()
+        self._load_issues()
+
+    def _ensure_data_dir_exists(self):
+        """Create the data directory if it doesn't exist."""
+        dir_name = os.path.dirname(self._filepath)
+        if dir_name and not os.path.exists(dir_name):
+            try:
+                os.makedirs(dir_name)
+                logging.info(f"Created data directory: {dir_name}")
+            except OSError as e:
+                logging.error(f"Failed to create data directory {dir_name}: {e}")
+                # log for now, potential raise later 
+
+    def _load_issues(self) -> None:
+        """Load issues from the JSON file."""
+        if not os.path.exists(self._filepath):
+            logging.warning(f"Data file not found: {self._filepath}. Starting fresh.")
+            self._issues = {}
+            return
+
+        try:
+            with open(self._filepath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                     self._issues = {
+                        issue_id: MemoryIssue.from_dict(issue_data)
+                        for issue_id, issue_data in data.items()
+                     }
+                     logging.info(f"Loaded {len(self._issues)} issues from {self._filepath}")
+                else:
+                    logging.error(f"Invalid data format in {self._filepath}. Expected a dictionary. Starting fresh.")
+                    self._issues = {}
+        except json.JSONDecodeError:
+            logging.exception(f"Failed to decode JSON from {self._filepath}. File might be corrupted. Starting fresh.")
+            self._issues = {} 
+        except Exception:
+             logging.exception(f"An unexpected error occurred while loading {self._filepath}. Starting fresh.")
+             self._issues = {} 
+
+
+    def _save_issues(self) -> None:
+        """Save the current state of issues to the JSON file."""
+        try:
+            data_to_save = {
+                issue_id: issue.to_dict()
+                for issue_id, issue in self._issues.items()
+            }
+            with open(self._filepath, "w", encoding="utf-8") as f:
+                json.dump(data_to_save, f, indent=2) 
+            logging.debug(f"Saved {len(self._issues)} issues to {self._filepath}")
+        except Exception: 
+            logging.exception(f"Failed to save issues to {self._filepath}")
+
+    def set_current_user(self, username: str) -> None:
+        """Set the current user for operations."""
+        self._current_user = username
+
+    def get_current_user(self) -> str:
+        return self._current_user
+
+    def get_issues(self, filters: dict[str, Any] | None = None) -> Iterator[Issue]:
+        """Return an iterator of issues, optionally filtered."""
+        issues = self._issues.values()
+        if filters:
+            filtered_issues = []
+            for issue in issues:
+                match = True
+                for key, value in filters.items():
+                    attr_value = getattr(issue, key, None)
+                    if key == "labels" and isinstance(value, list):
+                        issue_labels = getattr(issue, 'labels', [])
+                        if not isinstance(issue_labels, list) or not any(label in issue_labels for label in value):
+                            match = False
+                            break
+                    elif attr_value != value:
+                         match = False
+                         break
+                if match:
+                    filtered_issues.append(issue)
+            return iter(filtered_issues)
+        return iter(issues)
+
+
+    def get_issue_dict(self) -> dict[str, MemoryIssue]:
+        """Return all issues as a dictionary."""
+        # optimistically assumes in-memory is up to date
+        return self._issues.copy() 
+
+    def get_issue(self, issue_id: str) -> Issue:
+        """Return a specific issue by ID."""
+        if issue_id not in self._issues:
+            error_message = f"Issue with ID {issue_id} not found"
+            raise ValueError(error_message)
+        return self._issues[issue_id]
+
+    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:
+        """Create a new issue, save it, and return it."""
+        issue = MemoryIssue(title, description, self._current_user, **kwargs)
+        self._issues[issue.id] = issue
+        self._save_issues()
+        return issue
+
+    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
+        """Update an existing issue, save it, and return the updated version."""
+        issue = self.get_issue(issue_id) 
+        if not isinstance(issue, MemoryIssue):
+            raise TypeError("Issue found is not an updatable MemoryIssue instance")
+        issue.update(**kwargs)
+        self._save_issues()
+        return issue
+
+    def add_comment(self, issue_id: str, content: str) -> Comment:
+        """Add a comment to an issue, save it, and return the created comment."""
+        issue = self.get_issue(issue_id) 
+        if not isinstance(issue, MemoryIssue):
+             raise TypeError("Issue found is not a MemoryIssue instance that can accept comments")
+
+        comment = MemoryComment(self._current_user, content)
+        issue.add_comment(comment)
+        self._save_issues()
+        return comment
+
+    def search_issues(self, query: str) -> Iterator[Issue]:
+        """Search for issues matching the query string."""
+        query = query.lower()
+        matching_issues = [
+            issue
+            for issue in self._issues.values()
+            if query in issue.title.lower() or query in issue.description.lower()
+        ]
+        return iter(matching_issues)
+
+
+    def close_issue(self, issue_id: str, resolution: str) -> Issue:
+        """Close an issue with a given resolution and save."""
+        issue = self.get_issue(issue_id) 
+        if not isinstance(issue, MemoryIssue):
+            raise TypeError("Issue found is not an updatable MemoryIssue instance")
+
+        issue.update(status="closed")
+        self.add_comment(issue_id, f"Closed with resolution: {resolution}")
+        return issue

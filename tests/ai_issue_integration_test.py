@@ -1,16 +1,22 @@
 import pytest
+from pathlib import Path
 
 from src.ai_client import AIConversationClient
 from src.ai_issue_integration import AIIssueIntegration
-from src.issue_tracker import MemoryIssueTrackerClient
+from src.issue_tracker import FileIssueTrackerClient
 from tests.dummy_api_client import DummyAPIClient
+# from src.issue_tracker import MemoryIssueTrackerClient
 
 
 @pytest.fixture
-def integration():
+def integration(tmp_path: Path):
     ai_api_client = DummyAPIClient()
     ai_client = AIConversationClient(ai_api_client)
-    issue_client = MemoryIssueTrackerClient()
+
+    data_dir = tmp_path / "ai_integration_test_data"
+    test_file = data_dir / "issues.json"
+    
+    issue_client = FileIssueTrackerClient(filepath=str(test_file))
     return AIIssueIntegration(ai_client, issue_client)
 
 
