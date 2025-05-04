@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Iterator, Protocol, runtime_checkable
 
 
@@ -122,6 +123,8 @@ class IssueTrackerClient(Protocol):
 
 def get_issue_tracker_client() -> IssueTrackerClient:
     """Return an instance of an Issue Tracker Client."""
-    from src.issue_tracker import MemoryIssueTrackerClient
-
-    return MemoryIssueTrackerClient()
+    from src.issue_tracker import FileIssueTrackerClient # file-based ver 
+    # from src.issue_tracker import MemoryIssueTrackerClient
+    # return MemoryIssueTrackerClient() 
+    filepath = os.getenv("ISSUE_DATA_PATH", "data/issues.json")
+    return FileIssueTrackerClient(filepath=filepath)

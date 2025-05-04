@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 from src.ai_interface import IAIConversationClient
 from src.conversation import Conversation, Message, MessageRole
 
-# MyPy-safe dynamic typing for Gemini SDK
+# overall concern: why use requests if we can use the SDK's methods directly? future todo. We also keep self sessions but also gemini chat sessions. 
+
 if TYPE_CHECKING:
 
     class GenerativeModelConstructor(Protocol):
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 else:
     GenerativeModelConstructor = Any
 
-# Dynamic import that works at runtime
+# dynamic import
 genai = importlib.import_module("google.generativeai")
 genai_configure: Any = genai.configure
 genai_model_class: GenerativeModelConstructor = genai.GenerativeModel
@@ -88,7 +89,7 @@ class GeminiAPIClient(IAIConversationClient):
         headers = {"Content-Type": "application/json"}
 
         try:
-            # Add a timeout (e.g., 30 seconds) to prevent indefinite hanging
+            # add a timeout to prevent indefinite hanging
             response = requests.post(self._model_url, headers=headers, json=payload, timeout=30)
             response.raise_for_status()
             parsed = response.json()
