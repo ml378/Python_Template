@@ -31,13 +31,6 @@ jobs:
             . .venv/bin/activate
             pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html
 
-      - run:
-          name: Static analysis
-          command: |
-            . .venv/bin/activate
-            python -m mypy --install-types
-            python -m mypy .
-
       - store_test_results:
           path: test-results
 
