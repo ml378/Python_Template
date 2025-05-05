@@ -2,8 +2,7 @@
 
 ***Overview***
 
-hw4-integration
-This repository provides a modern Python project template with robust CI/CD capabilities. The project provides the core backend logic for an in-memory issue tracking system. It allows users to (programmatically) create, manage, comment on, and search for issues. The project is built with maintainability in mind, and showcases:
+This repository is a modern Python project template with robust CI/CD capabilities. The project provides the core backend logic for an issue tracking system that support in-memory issue storage or file-based persistant storage. It allows users to create, manage, comment on, and search for issues. This project also incorporates a AI chat agent, powered by Gemini API. This chat agent is integrated into the issue tracker client, so the user can ask the AI agent to do issue management tasks. The project is built with maintainability in mind, and showcases:
 
 - A complete issue tracking client implementation in Python
 - AI-Agent enabled issue management
@@ -45,85 +44,38 @@ uv sync
 Now you are ready to use this project! 
 
 # Usage Examples of AI Enabled Issue Tracker
-Start the ai-based issue tracker client: 
+Start the ai-enabled issue tracker client: 
 ```
 python -m src.ai_issue_integration
 ```
-Now, you can ask the Ai to create issue, list issues, or close issues. 
+Now, you can ask the Ai to create issue, list issues, or close issues. Please note that the only user-facing front-end now is the AI chat agent, as a part of integrating the AI into our project. 
 
-# Usage Examples of Issue Tracker Client By Itself
+# Features of Issue Tracker by Itself
 
-Ensure the package is accessible from the local python environment, or that the src directory is in your PYTHONPATH. 
+These features are available from the issue tracker itself: 
 
-```
-from src import get_issue_tracker_client, Issue
-
-client = get_issue_tracker_client()
-
-client.set_current_user("dev_user_1")
-```
 
 Create an issue
 
-```
-new_issue = client.create_issue(
-     title="Issue Name",
-     description="Issue description.",
-     priority="medium",
-     labels=["bug", "ui"],
-     assignee="dev_user_2"
- )
-```
+
 
 Add a comment 
 
-```
-comment = client.add_comment(
-     issue_id=new_issue.id,
-     content="Issue comment"
- )
-```
+
 
 Update the issue 
 
-```
-updated_issue = client.update_issue(
-     issue_id=new_issue.id,
-     status="in_progress",
-     assignee="dev_user_1" # Reassigning
- )
-```
 
 Get issue details
 
-```
-fetched_issue = client.get_issue(new_issue.id)
-print(f"Fetched Issue Title: {fetched_issue.title}")
-print("Comments:")
-for c in fetched_issue.get_comments():
-  print(f"- {c.content} (by {c.author})")
-```
 
 Filter issues
 
-```
-ui_bugs = client.get_issues(filters={"status": "open", "labels": ["ui"]})
-for issue in ui_bugs:
-  print(f"- {issue.id}: {issue.title}")
-```
+
 
 Search issues
 
-```
-search_results = client.search_issues("Name")
-for issue in search_results:
-  print(f"- {issue.id}: {issue.title}")
-```
 Close an issue
-
-```
-client.close_issue(issue_id=issue.id, resolution="fixed")
-```
 
 # Project Structure
 
