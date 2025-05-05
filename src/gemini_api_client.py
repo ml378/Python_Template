@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from src.ai_interface import IAIConversationClient
 from src.conversation import Conversation, Message, MessageRole
 
-# overall concern: why use requests if we can use the SDK's methods directly? future todo. We also keep self sessions but also gemini chat sessions. 
+# overall concern: why use requests if we can use the SDK's methods directly? future todo. We also keep self sessions but also gemini chat sessions.
 
 if TYPE_CHECKING:
 

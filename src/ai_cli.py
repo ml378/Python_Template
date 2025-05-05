@@ -6,10 +6,8 @@ including starting a chat, showing message history, and managing sessions.
 
 import argparse
 import asyncio
-import contextlib
 
 from src.ai_client import AIConversationClient
-
 
 
 async def interactive_chat(client: AIConversationClient, user_id: str) -> None:

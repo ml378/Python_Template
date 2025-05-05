@@ -1,10 +1,12 @@
-import pytest
 from pathlib import Path
+
+import pytest
 
 from src.ai_client import AIConversationClient
 from src.ai_issue_integration import AIIssueIntegration
 from src.issue_tracker import FileIssueTrackerClient
 from tests.dummy_api_client import DummyAPIClient
+
 # from src.issue_tracker import MemoryIssueTrackerClient
 
 
@@ -15,7 +17,7 @@ def integration(tmp_path: Path):
 
     data_dir = tmp_path / "ai_integration_test_data"
     test_file = data_dir / "issues.json"
-    
+
     issue_client = FileIssueTrackerClient(filepath=str(test_file))
     return AIIssueIntegration(ai_client, issue_client)
 

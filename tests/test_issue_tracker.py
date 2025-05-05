@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import pytest
 import json
 import logging
-import os
-
 from pathlib import Path
-from src.issue_tracker import MemoryComment, MemoryIssue, FileIssueTrackerClient
-from src.issue_tracker_interface import Issue, Comment
+
+import pytest
+
+from src.issue_tracker import FileIssueTrackerClient, MemoryComment, MemoryIssue
+
 
 @pytest.fixture
 def data_file(tmp_path: Path) -> Path:
@@ -25,8 +25,7 @@ def client(data_file: Path) -> FileIssueTrackerClient:
 
 @pytest.fixture
 def client_with_issues(client: FileIssueTrackerClient) -> FileIssueTrackerClient:
-    """
-    Fixture to create a client with some pre-populated issues.
+    """Fixture to create a client with some pre-populated issues.
 
     Relies on the client fixture which uses a unique temp file. Operations will save to that temp file. 
 
@@ -108,7 +107,7 @@ def test_get_issue(client_with_issues: FileIssueTrackerClient):
         if issue.title == "Bug 1":
             issue_id = issue.id
             break
-        
+
     assert issue_id is not None, "Failed to find 'Bug 1' in fixture setup"
 
     issue = client_with_issues.get_issue(issue_id)
@@ -187,9 +186,9 @@ def test_update_issue(client_with_issues: FileIssueTrackerClient, data_file: Pat
     assert updated_issue.assignee == "user3"
     assert updated_issue.labels == ["bug", "critical"]
     assert updated_issue.priority == "critical"
-    assert updated_issue.updated_at != original_updated_at 
+    assert updated_issue.updated_at != original_updated_at
 
-    # persistence check 
+    # persistence check
     client2 = FileIssueTrackerClient(filepath=str(data_file))
     loaded_issue = client2.get_issue(issue_id)
     assert loaded_issue.title == "Updated Bug 1"
@@ -220,7 +219,7 @@ def test_add_comment(client_with_issues: FileIssueTrackerClient, data_file: Path
     client2 = FileIssueTrackerClient(filepath=str(data_file))
     loaded_issue = client2.get_issue(issue_id)
     loaded_comments = list(loaded_issue.get_comments())
-    assert len(loaded_comments) > 0 
+    assert len(loaded_comments) > 0
     assert loaded_comments[-1].content == comment_content
     assert loaded_comments[-1].author == "commenter_user"
 
@@ -275,14 +274,14 @@ def test_search_issues(client_with_issues: FileIssueTrackerClient):
 
     results_description = list(
         client_with_issues.search_issues("another bug"),
-    ) 
+    )
     assert len(results_description) == 1
     assert results_description[0].title == "Bug 2"
 
     results_desc_bug = list(client_with_issues.search_issues("description"))
     assert (
         len(results_desc_bug) == 2
-    )  
+    )
     assert {issue.title for issue in results_desc_bug} == {"Bug 1", "Bug 2"}
 
 
@@ -304,7 +303,7 @@ def test_close_issue(client_with_issues: FileIssueTrackerClient, data_file: Path
     assert len(comments) > 0
     assert "Closed with resolution: fixed" in comments[-1].content
 
-    # persistence check 
+    # persistence check
     client2 = FileIssueTrackerClient(filepath=str(data_file))
     loaded_issue = client2.get_issue(issue_id)
     assert loaded_issue.status == "closed"
@@ -315,7 +314,7 @@ def test_close_issue(client_with_issues: FileIssueTrackerClient, data_file: Path
 
 def test_load_existing_file(data_file: Path):
     """Test loading data from a pre-existing valid JSON file."""
-    # manually created test issues 
+    # manually created test issues
     issue_id_1 = "issue_abc"
     issue_id_2 = "issue_def"
     initial_data = {
@@ -323,16 +322,16 @@ def test_load_existing_file(data_file: Path):
             "id": issue_id_1, "title": "Pre-existing Issue", "description": "Loaded from file",
             "status": "open", "creator": "file_creator", "assignee": None,
             "created_at": "2023-01-01T10:00:00Z", "updated_at": "2023-01-01T11:00:00Z",
-            "labels": ["persistent"], "priority": None, "comments": []
+            "labels": ["persistent"], "priority": None, "comments": [],
         },
          issue_id_2: {
             "id": issue_id_2, "title": "Another Pre-existing", "description": "Also loaded",
             "status": "closed", "creator": "file_creator_2", "assignee": "someone",
             "created_at": "2023-01-02T12:00:00Z", "updated_at": "2023-01-02T13:00:00Z",
             "labels": [], "priority": "low", "comments": [
-                {"id": "comment_123", "author": "commenter", "content": "Pre-loaded comment", "created_at": "2023-01-02T12:30:00Z"}
-            ]
-        }
+                {"id": "comment_123", "author": "commenter", "content": "Pre-loaded comment", "created_at": "2023-01-02T12:30:00Z"},
+            ],
+        },
     }
     data_file.parent.mkdir(parents=True, exist_ok=True)
     data_file.write_text(json.dumps(initial_data, indent=2))
@@ -359,7 +358,7 @@ def test_load_existing_file(data_file: Path):
 def test_load_empty_file(data_file: Path, caplog):
     """Test loading from an empty file (should start fresh)."""
     data_file.parent.mkdir(parents=True, exist_ok=True)
-    data_file.touch() 
+    data_file.touch()
     assert data_file.read_text() == ""
 
     with caplog.at_level(logging.WARNING):
@@ -382,7 +381,7 @@ def test_load_invalid_json_file(data_file: Path, caplog):
 def test_load_wrong_json_type(data_file: Path, caplog):
     """Test loading from valid JSON that isn't a dictionary."""
     data_file.parent.mkdir(parents=True, exist_ok=True)
-    data_file.write_text(json.dumps([{"id": "a"}, {"id": "b"}])) 
+    data_file.write_text(json.dumps([{"id": "a"}, {"id": "b"}]))
 
     with caplog.at_level(logging.ERROR):
         client = FileIssueTrackerClient(filepath=str(data_file))
@@ -410,7 +409,7 @@ def test_save_and_reload(data_file: Path):
     issue1 = client1.create_issue("Save Test", "Data to be saved")
     client1.add_comment(issue1.id, "A comment to save")
 
-    # client 2 loads data added by client 1 
+    # client 2 loads data added by client 1
     client2 = FileIssueTrackerClient(filepath=str(data_file))
     assert len(client2.get_issue_dict()) == 1
     loaded_issue = client2.get_issue(issue1.id)
