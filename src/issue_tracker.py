@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Iterator
 
 from src import Comment, Issue, IssueTrackerClient
 
-logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
@@ -189,7 +188,7 @@ class MemoryIssueTrackerClient(IssueTrackerClient):
         # specify that this client works with MemoryIssue instances
         self._issues: dict[str, MemoryIssue] = {}
         self._current_user = (
-            "default_user"
+            "default_user"  # TODO: implement auth system
         )
 
     def set_current_user(self, username: str) -> None:
@@ -293,45 +292,44 @@ class FileIssueTrackerClient(IssueTrackerClient):
         self._filepath = filepath
         self._issues: dict[str, MemoryIssue] = {}
         self._current_user = "default_user"
+        self._ensure_data_dir_exists()
         self._load_issues()
 
-    def _ensure_data_dir_exists(self) -> None:
+    def _ensure_data_dir_exists(self):
         """Create the data directory if it doesn't exist."""
-        dir_path = Path(self._filepath).parent
-        if not dir_path.exists():
+        dir_name = os.path.dirname(self._filepath)
+        if dir_name and not os.path.exists(dir_name):
             try:
-                # Create the directory, including any necessary parents.
-                # exist_ok=True prevents an error if the directory already exists (e.g., due to a race condition).
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info("Created data directory: %s", dir_path)
-            except OSError:
-                logger.exception("Failed to create data directory %s", dir_path)
+                os.makedirs(dir_name)
+                logging.info(f"Created data directory: {dir_name}")
+            except OSError as e:
+                logging.exception(f"Failed to create data directory {dir_name}: {e}")
                 # log for now, potential raise later
 
     def _load_issues(self) -> None:
         """Load issues from the JSON file."""
-        if not Path(self._filepath).exists():
-            logger.warning("Data file not found: %s. Starting fresh.", self._filepath)
+        if not os.path.exists(self._filepath):
+            logging.warning(f"Data file not found: {self._filepath}. Starting fresh.")
             self._issues = {}
             return
 
         try:
-            with Path(self._filepath).open(encoding="utf-8") as f:
+            with open(self._filepath, encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, dict):
                      self._issues = {
                         issue_id: MemoryIssue.from_dict(issue_data)
                         for issue_id, issue_data in data.items()
                      }
-                     logger.info(f"Loaded {len(self._issues)} issues from {self._filepath}")  # noqa: G004
+                     logging.info(f"Loaded {len(self._issues)} issues from {self._filepath}")
                 else:
-                    logger.error(f"Invalid data format in {self._filepath}. Expected a dictionary. Starting fresh.")    # noqa: G004
+                    logging.error(f"Invalid data format in {self._filepath}. Expected a dictionary. Starting fresh.")
                     self._issues = {}
         except json.JSONDecodeError:
-            logger.exception(f"Failed to decode JSON from {self._filepath}. File might be corrupted. Starting fresh.")  # noqa: G004
+            logging.exception(f"Failed to decode JSON from {self._filepath}. File might be corrupted. Starting fresh.")
             self._issues = {}
         except Exception:
-             logger.exception(f"An unexpected error occurred while loading {self._filepath}. Starting fresh.")  # noqa: G004
+             logging.exception(f"An unexpected error occurred while loading {self._filepath}. Starting fresh.")
              self._issues = {}
 
 
@@ -342,11 +340,11 @@ class FileIssueTrackerClient(IssueTrackerClient):
                 issue_id: issue.to_dict()
                 for issue_id, issue in self._issues.items()
             }
-            with Path(self._filepath).open("w", encoding="utf-8") as f:
+            with open(self._filepath, "w", encoding="utf-8") as f:
                 json.dump(data_to_save, f, indent=2)
-            logger.debug(f"Saved {len(self._issues)} issues to {self._filepath}")   # noqa: G004
+            logging.debug(f"Saved {len(self._issues)} issues to {self._filepath}")
         except Exception:
-            logger.exception(f"Failed to save issues to {self._filepath}")  # noqa: G004
+            logging.exception(f"Failed to save issues to {self._filepath}")
 
     def set_current_user(self, username: str) -> None:
         """Set the current user for operations."""
@@ -390,19 +388,18 @@ class FileIssueTrackerClient(IssueTrackerClient):
             raise ValueError(error_message)
         return self._issues[issue_id]
 
-    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:  # noqa: ANN401
+    def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:
         """Create a new issue, save it, and return it."""
         issue = MemoryIssue(title, description, self._current_user, **kwargs)
         self._issues[issue.id] = issue
         self._save_issues()
         return issue
 
-    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:  # noqa: ANN401
+    def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:
         """Update an existing issue, save it, and return the updated version."""
         issue = self.get_issue(issue_id)
         if not isinstance(issue, MemoryIssue):
-            msg = "Issue found is not an updatable MemoryIssue instance"
-            raise TypeError(msg)
+            raise TypeError("Issue found is not an updatable MemoryIssue instance")
         issue.update(**kwargs)
         self._save_issues()
         return issue
@@ -411,8 +408,7 @@ class FileIssueTrackerClient(IssueTrackerClient):
         """Add a comment to an issue, save it, and return the created comment."""
         issue = self.get_issue(issue_id)
         if not isinstance(issue, MemoryIssue):
-             msg = "Issue found is not a MemoryIssue instance that can accept comments"
-             raise TypeError(msg)
+             raise TypeError("Issue found is not a MemoryIssue instance that can accept comments")
 
         comment = MemoryComment(self._current_user, content)
         issue.add_comment(comment)
@@ -434,8 +430,7 @@ class FileIssueTrackerClient(IssueTrackerClient):
         """Close an issue with a given resolution and save."""
         issue = self.get_issue(issue_id)
         if not isinstance(issue, MemoryIssue):
-            msg = "Issue found is not an updatable MemoryIssue instance"
-            raise TypeError(msg)
+            raise TypeError("Issue found is not an updatable MemoryIssue instance")
 
         issue.update(status="closed")
         self.add_comment(issue_id, f"Closed with resolution: {resolution}")
