@@ -41,6 +41,10 @@ source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install uv
 uv sync
 ```
+Please generate a free Gemini API key and place is in a .env file at the root of the project, in this format: 
+```sh
+GEMINI_API_KEY=12345
+```
 Now you are ready to use this project! 
 
 # Usage Examples of AI Enabled Issue Tracker
