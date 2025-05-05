@@ -1,0 +1,302 @@
+from __future__ import annotations
+
+import argparse
+import asyncio
+import logging
+import sys
+from typing import TYPE_CHECKING, Any
+
+from src import IssueTrackerClient, get_issue_tracker_client
+
+logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from src.ai_client import AIConversationClient
+
+class AIIssueIntegration:
+    """Integration between AI conversation client and issue tracker."""
+
+    def __init__(
+        self,
+        ai_client: AIConversationClient,
+        issue_client: IssueTrackerClient | None = None,
+    ):
+        """Initialize the integration with both clients.
+
+        Args:
+            ai_client: The AI conversation client
+            issue_client: The issue tracker client (uses default if None)
+
+        """
+        self.ai_client = ai_client
+        self.issue_client = issue_client or get_issue_tracker_client()
+        self.commands = {
+            "create issue aasjhfga": self._parse_create_issue,
+            "list issues": self._parse_list_issues,
+            "close issue": self._parse_close_issue,
+        }
+
+    def process_message(self, session_id: str, message: str) -> dict[str, Any]:
+        """Process a user message and execute issue tracker commands if detected.
+
+        Args:
+            session_id: The conversation session ID
+            message: The user's message
+
+        Returns:
+            The AI response, potentially including issue tracker operation results
+
+        """
+        response = self.ai_client.send_message(session_id, message)
+        # Parse AI's response for commands instead of user message
+        if "content" in response:
+            # Remove "Assistant: " prefix if present
+            if response["content"].startswith("Assistant: "):
+                response["content"] = response["content"][11:]  # Length of "Assistant: "
+
+            command_result = self._process_commands(response["content"])
+            if command_result:
+                # Replace AI's response with just the command result
+                response["content"] = command_result
+
+        return response
+
+    def _process_commands(self, ai_response: str) -> str | None:
+        """Check if AI response contains issue tracker commands and process them.
+
+        Args:
+            ai_response: The AI response to check for commands
+
+        Returns:
+            Command result message or None if no command was detected
+
+        """
+        lower_response = ai_response.lower()
+
+        for command, handler in self.commands.items():
+            if command in lower_response:
+                return handler(ai_response)
+
+        return None
+
+    def _parse_create_issue(self, response: str) -> str:
+        """Parse AI response for issue creation parameters.
+
+        Format expected: 'create issue, title, description, creator, assignee, priority'
+        """
+        try:
+            # Split the response by commas and strip whitespace
+            parts = [part.strip() for part in response.split(",")]
+
+            # Verify the first part starts with "create issue"
+            if not parts[0].lower().startswith("create issue aasjhfga"):
+                return "Invalid issue creation format. Expected format: 'create issue, title, description, ...'"
+
+            # Extract title (required field)
+            if len(parts) < 2 or not parts[1]:
+                return "Could not parse issue title. Please provide a title after 'create issue'"
+
+            title = parts[1]
+
+            # Extract description (optional field)
+            description = parts[2] if len(parts) > 2 and parts[2] else "Created via AI assistant"
+
+            if not title:
+                return "Could not parse issue title. Title appears to be empty."
+
+            issue = self.issue_client.create_issue(
+                title=title,
+                description=description,
+            )
+        except Exception as e:
+            logger.exception("Error creating issue via AI")
+            return f"Failed to create issue: {e!s}"
+        else:
+            return f"Issue created successfully with ID: {issue.id}\nTitle: {issue.title}"
+
+    def _parse_list_issues(self, _response: str) -> str:
+        """List recent issues from the tracker."""
+        result = ""
+        try:
+            issues = list(self.issue_client.get_issues(filters={}))[:5]
+            if not issues:
+                return "No issues found."
+
+            result = "Recent issues:\n"
+            for issue in issues:
+                # Format with more details including creator and assignee
+                result += (f"- [{issue.id}] {issue.title}\n"
+                          f"  Status: {issue.status}\n"
+                          f"  Creator: {getattr(issue, 'creator', 'Not specified')}\n"
+                          f"  Assignee: {getattr(issue, 'assignee', 'Unassigned')}\n")
+        except RuntimeError as e:
+            logger.exception("Error listing issues")
+            return f"Failed to list issues: {e!s}"
+        else:
+            return result.strip()
+
+    def _parse_close_issue(self, response: str) -> str:
+        """Parse AI response for issue closing.
+
+        Format expected: 'close issue, partial issue number, resolution'
+        """
+        try:
+            # Split the response by commas and strip whitespace
+            parts = [part.strip() for part in response.split(",")]
+
+            # Verify the first part starts with "close issue"
+            if not parts[0].lower().startswith("close issue"):
+                return "Invalid issue closing format. Expected format: 'close issue, partial issue number, resolution'"
+
+            # Extract partial issue number (required field)
+            if len(parts) < 2 or not parts[1]:
+                return "Could not parse issue number. Please provide an issue number after 'close issue'"
+
+            partial_issue_number = parts[1]
+
+            # Extract resolution (optional field, default to "fixed")
+            resolution = parts[2] if len(parts) > 2 and parts[2] else "fixed"
+
+            # Get the list of issues
+            issues = list(self.issue_client.get_issues(filters={}))
+
+            # Find matches based on the partial issue number
+            matching_issues = [issue for issue in issues if partial_issue_number in str(issue.id)]
+
+            if not matching_issues:
+                return f"No issues found matching '{partial_issue_number}'"
+
+            if len(matching_issues) > 1:
+                # If multiple matches, return a list for the user to choose from
+                result = "Multiple issues match this number. Please be more specific:\n"
+                for issue in matching_issues:
+                    result += f"- [{issue.id}] {issue.title}\n"
+                return result.strip()
+
+            # If exactly one match, close that issue
+            issue = matching_issues[0]
+            self.issue_client.close_issue(issue.id, resolution)
+
+        except Exception as e:
+            logger.exception("Error closing issue via AI")
+            return f"Failed to close issue: {e!s}"
+        else:
+            # Return success message only if no exception occurred
+            return f"Issue closed successfully: [{issue.id}] {issue.title} with resolution: {resolution}"
+
+
+async def interactive_issue_chat(integration: AIIssueIntegration, user_id: str) -> None:
+    """Start an interactive chat loop with issue integration capabilities.
+
+    Args:
+        integration: The AI issue integration instance
+        user_id: Unique identifier for the user
+
+    """
+    session_id = integration.ai_client.start_new_session(user_id)
+
+    # Send initial context-setting message
+    system_message = f"""
+        In this session, You are in charge of interfacing with a issue tracker tool.
+        Never include words such as "Assistant: " or "AI: " at the beginning of your responses.
+        If you are uncertain about the user's intention, ask for clarification.
+
+        The user's name is: {user_id}. Please use this name as the creator when creating issues, and feel free to use it in your responses.
+
+        If the user ask you to create a issue, respond the with following information the use provided in a CSV-like format in a single line, without any quotation for formating:
+        The first item should be "create issue aasjhfga" and the rest should be the information for the following fields:
+        title, description, creator, assignee, priority
+        where creator is {user_id} and do not include any other text in the response.
+        Priority should be a number between 1 and 5, where 1 is the highest priority and 5 is the lowest.
+        Please parse the above data from the user's request. If the user did not provide one of those data, it is fine to leave the field empty.
+
+        If the user asks to list the issues or what issues are available, respond with "list issues" and nothing else.
+
+        If the user asks to close an issue, they need to provide a issue number and resolution(Resolution can only be either resolved or unresolved), if either is missing, ask for clarification.
+        Once you have all the needed information, respond with the key word close issue, then issue number and resolution, in csv format,
+        the issue number can be partial, and the system will find the matching issue, do not include any other text in the response of this command.
+    """
+
+    # Send system message but don't show response to user
+    integration.ai_client.send_message(session_id, f"SYSTEM: {system_message.strip()}")
+    print(f"Issue-enabled chat session started (ID: {session_id}). Type 'exit' or 'quit' to end.")  # noqa: T201
+    print("You can ask the AI to:") # noqa: T201
+    print("  - create a issue with infomration such as title, description, creator, assignee, and priority on a scale of 1-5")  # noqa: T201
+    print("  - list issues")    # noqa: T201
+    print("  - close an issue by providing its number") # noqa: T201
+    print("Feel free to use natural language to interact with the AI! Your commands will be processed automatically.")  # noqa: T201
+    loop = asyncio.get_event_loop()
+
+    while True:
+        try:
+            user_input = await loop.run_in_executor(None, input, "You: ")
+            user_input = user_input.strip()
+
+            if user_input.lower() in {"exit", "quit"}:
+                integration.ai_client.end_session(session_id)
+                print("Session ended.") # noqa: T201
+                break
+
+            if not user_input:
+                continue
+
+            # Process message through the integration
+            ai_response = integration.process_message(session_id, user_input)
+
+            # Print AI response if available
+            if ai_response and "content" in ai_response:
+                print(f"AI: {ai_response['content']}")  # noqa: T201
+
+        except EOFError:  # Handle Ctrl+D
+            integration.ai_client.end_session(session_id)
+            print("\nSession ended.")   # noqa: T201
+            break
+        except KeyboardInterrupt:  # Handle Ctrl+C
+            integration.ai_client.end_session(session_id)
+            print("\nSession interrupted and ended.")   # noqa: T201
+            break
+        except Exception as e:  # noqa: BLE001
+            print(f"An error occurred: {e}")    # noqa: T201
+
+
+async def run_cli() -> None:
+    """Parse command-line arguments and start the issue integration CLI."""
+    parser = argparse.ArgumentParser(description="AI Issue Integration CLI")
+    parser.add_argument("--user-id", default="default_user", help="User ID for the session")
+
+    args = parser.parse_args()
+
+    # If using default user_id, ask for user's name
+    if args.user_id == "default_user":
+        try:
+            user_name = input("Please enter your name: ").strip()
+            if user_name:
+                args.user_id = user_name
+            else:
+                print("Using default user ID as no name was provided.") # noqa: T201
+        except (EOFError, KeyboardInterrupt):
+            print("\nExiting application.") # noqa: T201
+            return
+
+    # Import here to avoid circular imports
+    from src.ai_client import AIConversationClient
+    from src.gemini_api_client import GeminiAPIClient
+
+    # Create the API client without a system prompt
+    api_client = GeminiAPIClient()
+    ai_client = AIConversationClient(api_client)
+
+    # Create the integration
+    integration = AIIssueIntegration(ai_client)
+
+    # Start interactive chat (system prompt will be sent as first message)
+    await interactive_issue_chat(integration, args.user_id)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    try:
+        asyncio.run(run_cli())
+    except Exception as e:  # noqa: BLE001
+        print(f"Fatal error: {e}")  # noqa: T201
+        sys.exit(1)
