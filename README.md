@@ -6,6 +6,7 @@ hw4-integration
 This repository provides a modern Python project template with robust CI/CD capabilities. The project provides the core backend logic for an in-memory issue tracking system. It allows users to (programmatically) create, manage, comment on, and search for issues. The project is built with maintainability in mind, and showcases:
 
 - A complete issue tracking client implementation in Python
+- AI-Agent enabled issue management
 - End-to-end testing strategy with both unit and integration tests
 - Comprehensive code quality tools and automation
 - Production-ready deployment pipeline with CircleCI
@@ -13,8 +14,9 @@ This repository provides a modern Python project template with robust CI/CD capa
 ***Key Features***
 
 - Issue Management: Create issues, retrive details, update issue properties, track issue status
+- AI Chat agent: User can use natural language to ask the AI agent to manage issues for them
 - Collaboration, organization and search of all issues, using keywords and other properties
-- Automated unit tests with thorough coverage, a robust CI/CD pipeline, Github actions for continuous integration 
+- Automated unit tests with thorough coverage, a robust CI/CD pipeline, Github actions for continuous integration
 - Pre-commit checks, dependency management, static analysis and formatting checks 
 
 ***Prerequisites***
@@ -38,37 +40,23 @@ Install dependencies:
 python -m venv venv
 source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install uv
-uv pip install -r requirements.txt
+uv sync
 ```
+Now you are ready to use this project! 
 
-Configure pre-commit hooks:
-```sh
-pre-commit install
+# Usage Examples of AI Enabled Issue Tracker
+Start the ai-based issue tracker client: 
 ```
-
-Run tests:
-```sh
-pytest --cov=src --cov-report=html
+python -m src.ai_issue_integration
 ```
+Now, you can ask the Ai to create issue, list issues, or close issues. 
 
-```sh
-nose2 -v nose2_tests
-```
+# Usage Examples of Issue Tracker Client By Itself
 
-View test coverage:
-
-```sh
-open htmlcov/index.html  # macOS
-xdg-open htmlcov/index.html  # Linux
-start htmlcov/index.html  # Windows
-```
-
-# Usage Examples
-
-Ensure the package is accessible from the local python environment, or that the api directory is in your PYTHONPATH. 
+Ensure the package is accessible from the local python environment, or that the src directory is in your PYTHONPATH. 
 
 ```
-from api.src import get_issue_tracker_client, Issue
+from src import get_issue_tracker_client, Issue
 
 client = get_issue_tracker_client()
 
@@ -137,24 +125,23 @@ Close an issue
 client.close_issue(issue_id=issue.id, resolution="fixed")
 ```
 
-***Project Structure***
+# Project Structure
 
 ```
 Python_Template/
-├── .circleci/        
+├── .circleci/
 ├── .github/
-├── .api/                
-   ├── src/                # Source code for the issue tracker
-   │   ├── __init__.py
-   │   ├── issue_tracker.py
-   │   └── ...
-   ├── tests/             # Tests for the issue tracker  
-   │   ├── test_issue_tracker.py
-   │   └── ...
-├── tests/             
-├── nose2_tests/        
+├── src/                # Source code for the issue tracker
+│   ├── __init__.py
+│   ├── issue_tracker.py
+│   ├── ai_issue_integration.py # AI integration module
+│   └── ...
+├── tests/              # Tests for the issue tracker
+│   ├── test_issue_tracker.py
+│   └── ...
+├── nose2_tests/        # Optional: Nose2 specific tests
 ├── .pre-commit-config.yaml
-├── pyproject.toml      # Project configuration, metadata 
+├── pyproject.toml      # Project configuration, metadata
 ├── requirements.txt    # Project dependencies
 └── README.md           # This file
 ```
@@ -172,7 +159,7 @@ git checkout -b feature/your-feature-name
 3. Run tests locally to ensure pre-commit checks passes
    
 ```
-pytest --cov=api/src
+pytest --cov=src
 ```
 
 4. Submit a pull request using the provided template (.github/pull_request_template.md)
@@ -187,7 +174,7 @@ pytest --cov=api/src
 
 4. Describe any testing performed to ensure correctness.
 
-***Tech Stack***
+# Tech Stack
 
 Python 3.8+
 
@@ -219,15 +206,6 @@ This project is licensed under the MIT License.
 **Links from Circleci Tests**
 
 https://app.circleci.com/pipelines/circleci/PMKrmVKcMeLYLN4ZAWvPSF/MixxMSzUixT5Ap1GdSpFR8/17/workflows/50d909cf-6753-407d-b258-e848e0d91251/jobs/17
-
-# Test Coverage Report
-
-## Running Tests with Coverage
-To measure test coverage and generate a browsable report, run:
-
-```sh
-pytest --cov=src --cov-report=html
-```
 
 # Authors
 - William Zhou
