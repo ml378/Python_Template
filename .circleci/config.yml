@@ -22,25 +22,19 @@ jobs:
           command: |
             uv venv
             . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage nose2
+            uv pip install -r requirements.txt
 
       - run:
           name: Run Tests & Generate Coverage Report
           command: |
             . .venv/bin/activate
-            pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html api/tests
-
-      - run:
-          name: Run Nose2 Tests
-          command: |
-            . .venv/bin/activate
-            nose2 -s nose2_tests
-
+            pytest --junitxml=test-results/results.xml --cov=src --cov-report=xml --cov-report=html tests
       - run:
           name: Run linters
           command: |
             . .venv/bin/activate
-            python -m ruff check . --fix
+            python -m ruff check . 
+            python -m ruff format --check .
           
       - run:
           name: Static analysis
@@ -53,7 +47,7 @@ jobs:
 
       - store_artifacts:
           path: htmlcov
-          destination: test-coverage  # makes the report browsable in CircleCI UI
+          destination: test-coverage 
 
 workflows:
   version: 2

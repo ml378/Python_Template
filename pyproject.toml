@@ -58,7 +58,8 @@ lint.ignore = [
     "ANN204", # Ignore missing return type annotation for __init__
     "PT009",  # Ignore assertEqual/unittest-style assertions
     "PLR2004", # Ignore magic number rule
-    "S101"  # Ignore pytest assert rule
+    "S101",  # Ignore pytest assert rule
+    "COM812" # Ignore trailing comma rule 
 ]
 
 # Ruff Formatting Rules
