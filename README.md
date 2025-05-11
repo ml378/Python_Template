@@ -1,123 +1,182 @@
-    # Python Project with CI/CD Pipeline (CircleCI)
+# Python Project with CI/CD Pipeline (CircleCI)
 
-    ***Overview***
+***Overview***
 
-    This repository contains a Python project with automated unit tests, integration tests, and test coverage reports powered by CircleCI.The minimum viable version of this project would include a functional issue tracker client, where user could raise an issue, others will be able to comment on it, and the issues could be managed. 
+This project defines the core API for a Python-based Issue Tracker. The project contains automated unit tests, integration tests, and test coverage reports covered by CircleCI. The API establishes a clear contract for how components (`Comment`, `Issue`, and `IssueTrackerClient`) interact. The minimum viable version of this project would include a functional IssueTrackerClient, where users could raise issues that could then be viewed and managed. The project utilizes interface programming rather than concrete implementation, as well as a factory pattern for basic dependency injection.
 
-    ***Features***
+***Features***
 
-    1. Automated unit tests with pytest
+1. Protocol-Based Interfaces, with a functional mock backend
 
-    2. Test coverage report generated and browsable from CircleCI UI
+2. Automated unit tests with pytest, Test coverage report and general CI/CD pipeline provided by CircleCI
 
-    3. CI/CD pipeline using CircleCI
+3. Dependency Injection via `get_issue_tracker_client()`
 
-    4. Pre-commit checks with mypy and ruff
+4. Quality Assurance and Tooling
+- Pre-commit checks with mypy and ruff
+- Modern dependency management using uv
+- Static analysis and formatting checks
 
-    5. Modern dependency management using uv
+5. GitHub Actions for continuous integration
 
-    6. Static analysis and formatting checks
+## API Interface Design
 
-    7. GitHub Actions for continuous integratio
+The API is centered around three main protocols defined in `src/__init__.py`.
 
+### Core Protocols:
 
-    ***Prerequisites***
+1.  **`Comment` Protocol:**
+    *   **Purpose:** Represents a single comment on an issue.
+    *   **Key Attributes:** `id` (str), `author` (str), `content` (str), `created_at` (str, ISO 8601).
+    *   *Example Snippet (Interface):*
+        ```python
+        class Comment(Protocol):
+            @property
+            def id(self) -> str: ...
+            # ...
+        ```
 
-    1. Python 3.8 or higher
+2.  **`Issue` Protocol:**
+    *   **Purpose:** Represents a trackable issue.
+    *   **Key Attributes:** `id` (str), `title` (str), `description` (str), `status` (str), `creator` (str), `assignee` (str | None), `labels` (list[str]), `priority` (str | None).
+    *   **Key Methods:** `get_comments() -> Iterator[Comment]`.
+    *   *Example Snippet (Interface):*
+        ```python
+        class Issue(Protocol):
+            @property
+            def title(self) -> str: ...
+            def get_comments(self) -> Iterator[Comment]: ...
+            # ... 
+        ```
 
-    2. UV for Python dependency management
+3.  **`IssueTrackerClient` Protocol:**
+    *   **Purpose:** Defines operations for managing issues and comments.
+    *   **Key Methods:**
+        *   `get_issues(filters: dict | None) -> Iterator[Issue]`
+        *   `get_issue(issue_id: str) -> Issue`
+        *   `create_issue(title: str, description: str, **kwargs) -> Issue`
+        *   `update_issue(issue_id: str, **kwargs) -> Issue`
+        *   `add_comment(issue_id: str, content: str) -> Comment`
+        *   `search_issues(query: str) -> Iterator[Issue]`
+    *   *Example Snippet (Interface):*
+        ```python
+        class IssueTrackerClient(Protocol):
+            def create_issue(self, title: str, description: str, **_kwargs: Any) -> Issue: ...
+            # ...
+        ```
 
-    ***Setup & Installation***
+### Dependency Management & Mock Implementation
 
-    Clone the repository:
-    ```sh
-    git clone https://github.com/ml378/Python_Template.git
-    cd Python_Template
+*   A mock implementation (`src/mock_implementation.py`) provides concrete classes (`MockComment`, `MockIssue`, `MockIssueTrackerClient`) that implement these protocols. This allows for immediate testing and development against the interfaces.
+*   The `get_issue_tracker_client()` function (in `src/__init__.py`) acts as a factory. It returns an instance of `IssueTrackerClient`. This approach allows a decoupling of the client to the specific mock implementation.
+
+    ```python
+    # Example usage:
+    # from src import get_issue_tracker_client, Issue
+    #
+    # client = get_issue_tracker_client()
+    # new_issue: Issue = client.create_issue("Bug Fix", "Fix the login redirect.")
     ```
-    Install dependencies:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate
-    pip install uv
-    uv pip install -r requirements.txt
+
+## Project Structure
+
+The project is organized to clearly separate interface definitions, mock implementations, and tests:
+
+*   `src/`:
+    *   `__init__.py`: contains the `Comment`, `Issue`, and `IssueTrackerClient` protocol definitions, and the `get_issue_tracker_client()` factory function
+    *   `mock_implementation.py`: contains the `MockComment`, `MockIssue`, and `MockIssueTrackerClient` classes that implement the protocols
+*   `tests/`: contains all tests related to the interface definition:
+    *   `test_interfaces.py`: verifies protocol conformance of mock implementations
+    *   `test_interfaces_behavior.py`: tests behavior of mock client methods
+    *   `test_type_checking.py`: mypy target for validating protocol type definitions
+
+***Prerequisites***
+
+1. Python 3.8 or higher
+
+2. UV for Python dependency management
+
+***Setup & Installation***
+
+Clone the repository:
+```sh
+git clone https://github.com/ml378/Python_Template.git
+cd Python_Template
+git checkout hw2-revision
+```
+
+Create and activate a virtual environment:
+```sh
+python -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+```sh
+python -m pip install --upgrade pip
+pip install uv
+uv pip install -r requirements.txt
+```
+
+Run tests:
+1.  Run Pytest tests:
+    ```bash
+    pytest
     ```
-    Run tests:
-    ```sh
+    To generate a coverage report:
+    ```bash
     pytest --cov=src --cov-report=html
     ```
 
-    ```sh
-    nose2 -v nose2_tests
+2.  Run Ruff Linter:
+    ```bash
+    ruff check .
     ```
 
-    View test coverage:
+3.  Run Ruff Formatter:
+    ```bash
+    ruff format --check .
+    ```
+    To automatically format: `ruff format .`
 
-    ```sh open htmlcov/index.html  # macOS
-    xdg-open htmlcov/index.html  # Linux
+4.  Run Mypy Static Type Checker
+    ```bash
+    mypy src/ tests/
     ```
 
-    ***CI/CD Pipeline (CircleCI)***
+## CI/CD (CircleCI)
 
-    ****How it Works****
+*   The CircleCI pipeline (`.circleci/config.yml`) is configured for this project.
+*   On every push, CircleCI automatically:
+    *   Installs dependencies.
+    *   Runs `ruff check .` and `ruff format --check .`.
+    *   Runs `mypy src/ tests/`.
+    *   Executes all `pytest` tests.
+*   A passing CircleCI build indicates that the project comprehensively functions correctly and adheres to coding standards and type safety.
+*   CircleCI link: https://app.circleci.com/pipelines/circleci/PMKrmVKcMeLYLN4ZAWvPSF/MixxMSzUixT5Ap1GdSpFR8
 
-    Push to GitHub → CircleCI triggers the pipeline➡️ Runs:
+## Tech Stack
 
-    1. Unit tests (pytest)
-
-    2. Coverage report (pytest-cov)
-
-    3. Linting (ruff)
-
-    Test results are visible in the CircleCI "Tests" tab➡️ Coverage reports are stored as "Artifacts", browsable in CircleCI UI.
-
-    ***View Test Coverage in CircleCI***
-
-    1️⃣ Go to CircleCI Dashboard2️⃣ Open the latest Job Run3️⃣ Navigate to Artifacts4️⃣ Click on test-coverage/index.html to browse the report
-
-
-
-    ***Pull Requests***
-
-    1. Use the pull request template from .github/pull_request_template/
-
-    2. Provide a clear summary of the PR.
-
-    3. Explain the motivation behind the changes.
-
-    4. Describe any testing performed to ensure correctness.
+*   **Python:** 3.10+
+*   **Interface Definition:** `typing.Protocol`
+*   **Testing:** `pytest`
+*   **Linting & Formatting:** `Ruff`
+*   **Static Type Checking:** `Mypy`
+*   **Dependency Management:** `uv`
+*   **Continuous Integration:** CircleCI
 
 
+***Pull Requests***
 
-    ***Tech Stack***
+1. Use the pull request template from .github/pull_request_template/
 
-    Python 3.12
+2. Provide a clear summary of the PR.
 
-    Pytest
+3. Explain the motivation behind the changes.
 
-    CircleCI
+4. Describe any testing performed to ensure correctness.
 
-    Coverage.py
 
-    Ruff (Linting)
+***License***
 
-    Mypy (Type Checking)
-
-    UV (Dependency Management)
-
-    ***License***
-
-    This project is licensed under the MIT License.
-
-    **Links from Circleci Tests**
-
-    https://app.circleci.com/pipelines/circleci/PMKrmVKcMeLYLN4ZAWvPSF/MixxMSzUixT5Ap1GdSpFR8/17/workflows/50d909cf-6753-407d-b258-e848e0d91251/jobs/17
-
-    # Test Coverage Report
-
-    ## Running Tests with Coverage
-    To measure test coverage and generate a browsable report, run:
-
-    ```sh
-    pytest --cov=src --cov-report=html
-    ```
-
+This project is licensed under the MIT License.
