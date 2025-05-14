@@ -1,3 +1,6 @@
+"""Mock implementation of the issue tracker client for testing and development.
+"""
+
 from __future__ import annotations
 
 from typing import Any, Iterator
@@ -107,7 +110,18 @@ class MockIssue(Issue):
 
 
 class MockIssueTrackerClient(IssueTrackerClient):
-    def __init__(self):
+    """A mock implementation of an issue tracker client.
+    
+    Used for development and testing when a real client connection is not needed.
+    """
+
+    def __init__(self, config=None):
+        """Initialize the mock issue tracker client.
+        
+        Args:
+            config (dict, optional): Configuration parameters for the client.
+
+        """
         self._issues_store: dict[str, MockIssue] = {}
         self._next_issue_id = 1
 
@@ -133,6 +147,17 @@ class MockIssueTrackerClient(IssueTrackerClient):
         return MockIssue(issue_id=issue_id, title=f"Mock Issue {issue_id}")
 
     def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:  # noqa: ANN401
+        """Create a new mock issue.
+        
+        Args:
+            title (str): Title of the issue
+            description (str): Detailed description of the issue
+            **kwargs: Additional issue attributes
+            
+        Returns:
+            dict: The created issue data
+
+        """
         new_id = f"issue-{self._next_issue_id}"
         self._next_issue_id += 1
         new_issue = MockIssue(issue_id=new_id, title=title, description=description)
@@ -156,15 +181,26 @@ class MockIssueTrackerClient(IssueTrackerClient):
 
     def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:  # noqa: ANN401
         if issue_id in self._issues_store:
+            issue = self._issues_store[issue_id]
             if "title" in kwargs:
-                pass
-            return self._issues_store[issue_id]
+                issue._title = kwargs["title"]
+            if "description" in kwargs:
+                issue._description = kwargs["description"]
+            if "status" in kwargs:
+                issue.set_status(kwargs["status"])
+            if "assignee" in kwargs:
+                issue.set_assignee(kwargs["assignee"])
+            if "priority" in kwargs:
+                issue._priority = kwargs["priority"]
+            issue._updated_at = "2025-05-11"  # In a real implementation, this would be the current date
+            return issue
         return MockIssue(issue_id=issue_id, title="Updated Mock Issue")
 
     def add_comment(self, issue_id: str, content: str) -> Comment:
         new_comment = MockComment(content)
         if issue_id in self._issues_store:
-            pass
+            issue = self._issues_store[issue_id]
+            issue.add_mock_comment(new_comment)
         return new_comment
 
     def search_issues(self, query: str) -> Iterator[Issue]:

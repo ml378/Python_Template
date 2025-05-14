@@ -19,6 +19,54 @@ This project defines the core API for a Python-based Issue Tracker. The project 
 
 5. GitHub Actions for continuous integration
 
+**How to run**
+
+Follow these steps to set up and run the Issue Tracker:
+
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/ml378/Python_Template.git
+   cd Python_Template
+   ```
+
+2. **Create and activate a virtual environment**
+   ```sh
+   python -m venv venv
+   
+   # On macOS/Linux
+   source venv/bin/activate
+   
+   # On Windows
+   venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```sh
+   python -m pip install --upgrade pip
+   pip install uv
+   # Use UV to install dependencies instead of pip
+   uv sync
+   ```
+
+4. **Install the CLI tool in development mode**
+   ```sh
+   pip install -e .
+   ```
+
+5. **Run the issue tracker**
+   ```sh
+   # List all issues
+   issue-tracker list
+   
+   # Create a new issue
+   issue-tracker create --title "First issue" --description "This is my first issue" --priority "high"
+   
+   # View details of a specific issue (replace issue-id with an actual ID)
+   issue-tracker view issue-id
+   ```
+
+For more CLI options and examples, see the "CLI Interface" section below.
+
 ## API Interface Design
 
 The API is centered around three main protocols defined in `src/__init__.py`.
@@ -65,6 +113,85 @@ The API is centered around three main protocols defined in `src/__init__.py`.
             # ...
         ```
 
+## CLI Interface
+
+The Issue Tracker comes with a command-line interface for easy interaction with the system.
+
+### Installation
+
+Install the CLI tool with:
+```sh
+pip install -e .
+```
+
+### Usage
+
+```sh
+issue-tracker [command] [options]
+```
+
+### Available Commands
+
+1. **List Issues**
+   ```sh
+   issue-tracker list [--status STATUS] [--assignee USERNAME] [--labels LABEL1,LABEL2]
+   ```
+   Lists all issues matching the provided filters.
+
+2. **View Issue Details**
+   ```sh
+   issue-tracker view ISSUE_ID
+   ```
+   Displays detailed information about a specific issue including comments.
+
+3. **Create Issue**
+   ```sh
+   issue-tracker create --title "Issue title" --description "Issue description" [--assignee USERNAME] [--labels LABEL1,LABEL2] [--priority PRIORITY]
+   ```
+   Creates a new issue with the specified attributes.
+
+4. **Update Issue**
+   ```sh
+   issue-tracker update ISSUE_ID [--title "New title"] [--description "New description"] [--status STATUS] [--assignee USERNAME] [--labels LABEL1,LABEL2] [--priority PRIORITY]
+   ```
+   Updates an existing issue with new values.
+
+5. **Add Comment**
+   ```sh
+   issue-tracker comment ISSUE_ID "Your comment text"
+   ```
+   Adds a comment to the specified issue.
+
+6. **Search Issues**
+   ```sh
+   issue-tracker search "search term"
+   ```
+   Searches for issues containing the search term in title or description.
+
+### Examples
+
+```sh
+# List all open issues
+issue-tracker list --status open
+
+# Create a new bug report
+issue-tracker create --title "Login page error" --description "Users can't log in with correct credentials" --labels bug,urgent --priority high
+
+# Assign an issue to someone
+issue-tracker update issue-123 --assignee "johndoe" --status "in-progress"
+
+# Add a comment to an issue
+issue-tracker comment issue-123 "I've started working on this bug"
+
+# Search for issues about login
+issue-tracker search "login"
+```
+
+For more details on specific commands, use:
+```sh
+issue-tracker [command] --help
+```
+
 ### Dependency Management & Mock Implementation
 
 *   A mock implementation (`src/mock_implementation.py`) provides concrete classes (`MockComment`, `MockIssue`, `MockIssueTrackerClient`) that implement these protocols. This allows for immediate testing and development against the interfaces.
@@ -90,35 +217,9 @@ The project is organized to clearly separate interface definitions, mock impleme
     *   `test_interfaces_behavior.py`: tests behavior of mock client methods
     *   `test_type_checking.py`: mypy target for validating protocol type definitions
 
-***Prerequisites***
 
-1. Python 3.8 or higher
 
-2. UV for Python dependency management
-
-***Setup & Installation***
-
-Clone the repository:
-```sh
-git clone https://github.com/ml378/Python_Template.git
-cd Python_Template
-git checkout hw2-revision
-```
-
-Create and activate a virtual environment:
-```sh
-python -m venv venv
-source venv/bin/activate
-```
-
-Install dependencies:
-```sh
-python -m pip install --upgrade pip
-pip install uv
-uv pip install -r requirements.txt
-```
-
-Run tests:
+## Run tests:
 1.  Run Pytest tests:
     ```bash
     pytest

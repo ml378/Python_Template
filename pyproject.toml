@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "python-template"
+name = "issue-tracker"
 version = "0.1.0"
-description = "Python project template with linting, type checking, and testing."
+description = "Issue Tracker application"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -10,6 +14,15 @@ dependencies = [
     "mypy",
     "ruff"
 ]
+
+[project.scripts]
+issue-tracker = "cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=src --cov-report=html"
