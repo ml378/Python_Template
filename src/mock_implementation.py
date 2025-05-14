@@ -1,3 +1,6 @@
+"""Mock implementation of the issue tracker client for testing and development.
+"""
+
 from __future__ import annotations
 
 from typing import Any, Iterator
@@ -107,7 +110,18 @@ class MockIssue(Issue):
 
 
 class MockIssueTrackerClient(IssueTrackerClient):
-    def __init__(self):
+    """A mock implementation of an issue tracker client.
+    
+    Used for development and testing when a real client connection is not needed.
+    """
+
+    def __init__(self, config=None):
+        """Initialize the mock issue tracker client.
+        
+        Args:
+            config (dict, optional): Configuration parameters for the client.
+
+        """
         self._issues_store: dict[str, MockIssue] = {}
         self._next_issue_id = 1
 
@@ -133,6 +147,17 @@ class MockIssueTrackerClient(IssueTrackerClient):
         return MockIssue(issue_id=issue_id, title=f"Mock Issue {issue_id}")
 
     def create_issue(self, title: str, description: str, **kwargs: Any) -> Issue:  # noqa: ANN401
+        """Create a new mock issue.
+        
+        Args:
+            title (str): Title of the issue
+            description (str): Detailed description of the issue
+            **kwargs: Additional issue attributes
+            
+        Returns:
+            dict: The created issue data
+
+        """
         new_id = f"issue-{self._next_issue_id}"
         self._next_issue_id += 1
         new_issue = MockIssue(issue_id=new_id, title=title, description=description)
