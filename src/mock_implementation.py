@@ -156,15 +156,26 @@ class MockIssueTrackerClient(IssueTrackerClient):
 
     def update_issue(self, issue_id: str, **kwargs: Any) -> Issue:  # noqa: ANN401
         if issue_id in self._issues_store:
+            issue = self._issues_store[issue_id]
             if "title" in kwargs:
-                pass
-            return self._issues_store[issue_id]
+                issue._title = kwargs["title"]
+            if "description" in kwargs:
+                issue._description = kwargs["description"]
+            if "status" in kwargs:
+                issue.set_status(kwargs["status"])
+            if "assignee" in kwargs:
+                issue.set_assignee(kwargs["assignee"])
+            if "priority" in kwargs:
+                issue._priority = kwargs["priority"]
+            issue._updated_at = "2025-05-11"  # In a real implementation, this would be the current date
+            return issue
         return MockIssue(issue_id=issue_id, title="Updated Mock Issue")
 
     def add_comment(self, issue_id: str, content: str) -> Comment:
         new_comment = MockComment(content)
         if issue_id in self._issues_store:
-            pass
+            issue = self._issues_store[issue_id]
+            issue.add_mock_comment(new_comment)
         return new_comment
 
     def search_issues(self, query: str) -> Iterator[Issue]:

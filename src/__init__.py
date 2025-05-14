@@ -142,3 +142,5 @@ __all__ = [
     "IssueTrackerClient",
     "get_issue_tracker_client",
 ]
+
+# This file makes the 'src' directory a proper Python package
